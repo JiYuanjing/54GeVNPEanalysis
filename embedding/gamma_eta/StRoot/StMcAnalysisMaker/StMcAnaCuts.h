@@ -57,14 +57,14 @@ namespace McAnaCuts
    float const parVz_mult[nparVz_mult]={435.9,-0.02413,-0.003707,0.0002204,1.487e-5,-2.95e-07,-1.866e-8};
    int const nCent = 9 ;
    float const Refmult_cent[nCent] = {7,16,31,54,89,138,205,299,361}; //refmult > par[i],  70-80%, 60-70%, ... ,0-5% 
- 
+   double const CentScaleFactor=1.; 
   int const parentId = 1; 
   //forbidden the X->gamma->e in gamma embedding
   int const gammaId = 0; 
   int const dauId1 = 2;
   int const dauId2 = 3; 
-  TString const GammaParentSpName = "fGMSp_eta"; // this is specific for gamma->ee
-  TString const GammaParentV2Name = "fGMv2_eta"; // this is specific for gamma->ee
+  TString const GammaParentSpName = "fGMSp_pi0"; // this is specific for gamma->ee
+  TString const GammaParentV2Name = "fGMv2_pi0"; // this is specific for gamma->ee
  // fGMSp_comb fGMv2_comb fGMSp_eta fGMv2_eta fGMSp_pi0  fGMv2_pi0  dirpho_v2  dirpho_sp
 
   TString pi0spectraform="2*TMath::Pi()*x*[0]*pow(TMath::Exp(-1*[1]*x-[2]*x*x)+x/[3], -[4])";

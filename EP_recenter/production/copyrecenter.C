@@ -5,6 +5,7 @@ void copyrecenter()
   TProfile* pQyRecenterM[9];
   TProfile* pQxRecenterP[9];
   TProfile* pQyRecenterP[9];
+  double totalTracks=0;
   for (int ic=0;ic<9;ic++){
     pQxRecenterM[ic] = (TProfile*)file->Get(Form("pQxRecenterMin_%d",ic));
     pQxRecenterM[ic]->SetDirectory(0);
@@ -14,7 +15,9 @@ void copyrecenter()
     pQxRecenterP[ic]->SetDirectory(0);
     pQyRecenterP[ic] = (TProfile*)file->Get(Form("pQyRecenterPlu_%d",ic));
     pQyRecenterP[ic]->SetDirectory(0);
+    if (ic>=2) totalTracks+=pQxRecenterP[ic]->GetEntries();
   } 
+  cout << totalTracks<<" "<<totalTracks/4.6*1e-8<<endl;
   file->Close();
   // TH2F* hEventPlaneCent = (TH2F*)file->Get("hEventPlaneCent"); 
   // TH1F* mbep = (TH1F*)hEventPlaneCent->ProjectionY();

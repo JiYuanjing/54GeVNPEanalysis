@@ -1,0 +1,66 @@
+void fun1(double x,double p0,double p1,double p2,double p3)
+{
+  return p0+p1*pow(x,1)+p2*pow(x,2)+p3*pow(x,3); 
+}
+
+
+void fun2(double x,double p1,double p2,double p3)
+{
+
+  return p1*pow(x,1)+p2*pow(x,2)+p3*pow(x,3); 
+
+}
+void fitEffFun(double* x, double* p)
+{
+   if (x[0]<1.1)  return fun1(x[0],p[0],p[1],p[2],p[3]);
+   else if (x[0]>1.1&&x[0]<1.5) return fun1(x[0],p[4],p[5],p[6],p[7]);
+   // else if (x[0]>1.5) return fun1(x[0],p[8],p[9],p[10],p[11])-fun1(1.5,p[8],p[9],p[10],p[11])+fun1(1.5,p[4],p[5],p[6],p[7]);
+   else if (x[0]>1.5) return fun1(x[0],p[8],p[9],p[10],p[11]);
+}
+void fitEffFun2(double* x, double* p)
+{
+   if (x[0]<1.1)  return fun1(x[0],p[0],p[1],p[2],p[3]);
+   double turning1 = fun1(1.1,p[0],p[1],p[2],p[3]); 
+   double C1=turning1-fun1(1.1,0,p[5],p[6],p[7]);
+   if (x[0]>=1.1&&x[0]<1.3) return fun1(x[0],C1,p[5],p[6],p[7]);
+   // else if (x[0]>1.5) return fun1(x[0],p[8],p[9],p[10],p[11])-fun1(1.5,p[8],p[9],p[10],p[11])+fun1(1.5,p[4],p[5],p[6],p[7]);
+   double C2=fun1(1.3,C1,p[5],p[6],p[7])-fun1(1.5,0,p[9],p[10],p[11]);
+   if (x[0]>=1.3) return fun1(x[0],C2,p[9],p[10],p[11]);
+}
+void fitEff()
+{
+  TFile* fsys = new TFile("gTotSysErr_Qct26.root");
+  TGraphErrors* gtoterr = (TGraphErrors*)fsys->Get("Graph");
+  fsys->Close();
+  int const centH=8,centL=2;
+  TFile* file = new TFile("PhoEff_comb.root");
+  TF1* fitfun = new TF1("fitfun",fitEffFun,0,4,12);
+  TH1F* hRecoEff = (TH1F*)file->Get(Form("hRecoEff_%d_%d",centL,centH));
+  hRecoEff->GetXaxis()->SetRangeUser(0,2);
+  hRecoEff->Fit(fitfun,"R");
+  double par[12];
+  TF1* fitfun2 = new TF1("fitfun2",fitEffFun2,0,4,12);
+  fitfun->GetParameters(par);
+  fitfun2->SetParameters(par);
+  hRecoEff->Fit(fitfun2);
+  fitfun2->SetNpx(10000);
+  int const Npx=1000;
+  double x[Npx],y[Npx],err[Npx];
+  
+  for (int i=0;i<Npx;i++)
+  {
+    x[i]=i*(4-0)/(float)Npx+0;
+    y[i]=fitfun2->Eval(x[i]);
+    if (x[i]<0.3) err[i]=y[i]*gtoterr->Eval(0.3);
+    else if (x[i]>2.6) err[i]=y[i]*gtoterr->Eval(2.6);
+    else err[i]=y[i]*gtoterr->Eval(x[i]);
+  }
+  TGraphErrors* gErr = new TGraphErrors(1000,x,y,0,err);
+  gErr->SetName("gEffError"); 
+  gErr->Draw("same3");
+
+  // fitfun2->SaveAs(Form("fitRecoEff_%d_%d.root",centL,centH));
+  TFile * fout = new TFile(Form("fitRecoEff_%d_%d.root",centL,centH),"recreate");
+  fitfun2->Write();
+  gErr->Write();
+}

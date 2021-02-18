@@ -20,6 +20,7 @@ void calgamma()
 
   // TString filenamePi="pi02gamma_0918.root";
   TString filenamePi="pi02gamma_1016.root";
+  /* TString filenamePi="pi02gamma_1017.root"; */
   // TString filenamePi="gammav2.root";
   // TString filenameEta="eta2gamma_0918.root";
   TString filenameEta="eta2gamma_1016.root";
@@ -124,7 +125,7 @@ void drawAndWriteGamma(TString filename, TFile* fout,TPDF* pdf, TCanvas* c,TStri
   // TF1* fgammaSpec[7];
   double etarange = 2;
   
-  double x[1000],y[1000];
+  double x[10000],y[10000];
   int Nbins=0;
 
   //spectra
@@ -209,8 +210,8 @@ void drawAndWriteGamma(TString filename, TFile* fout,TPDF* pdf, TCanvas* c,TStri
   cout <<"start writing..." <<endl;
   fout->cd();
   for (int ic=1;ic<9;ic++){  
-    // hGmSp[ic]->Write();
-    // gGmSp[ic]->Write();
+    hGmSp[ic]->Write();
+    gGmSp[ic]->Write();
     pGmv2[ic]->Write();
     gGmv2[ic]->Write();
   }

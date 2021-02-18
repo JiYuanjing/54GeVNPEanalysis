@@ -12,7 +12,7 @@ void pi0hist()
   TF1* f[5],f2[5];
   TMultiGraph* gmul[5];
   TGraphErrors* g[3][5];
-   // c->Divide(3,2);
+  c->Divide(3,2);
   double SpectraParPi0[5][5]={ 
     {1052,0.408,0.091,1.021,10.98},
     {698.6,0.3983,0.064,1.058,11.06},
@@ -22,12 +22,13 @@ void pi0hist()
   };
   double par[5];
   TString centname[5] = {"0_10","10_20","20_40","40_60","60_86"};
+  TString centnamestring[5] = {"0-10%","10-20%","20-40%","40-60%","60-86%"};
   TString pionname[3] = {"pi0","piplus","piminus"};
   int color[3]={kRed,kBlue,kMagenta};
   for (int i=0;i<5;i++)
   {
     //if have pionminus
-    c->Clear();
+    /* c->Clear(); */
     c->cd(i+1);
     gmul[i] = new TMultiGraph(Form("gCom_%s",centname[i].Data()),Form("gCom_%s",centname[i].Data())); 
     for (int j=0;j<3;j++)
@@ -40,7 +41,7 @@ void pi0hist()
         g[j][i]->SetMarkerColor(color[j]);
         g[j][i]->SetLineColor(color[j]);
         g[j][i]->GetXaxis()->SetTitle("p_{T}[GeV/c]");
-        g[j][i]->GetYaxis()->SetTitle("Inv. yield");
+        g[j][i]->GetYaxis()->SetTitle("d^{2}N/2#piN_{evt}dp_{T}dy");
 
         gmul[i]->Add(g[j][i]);
       }
@@ -54,7 +55,7 @@ void pi0hist()
     gmul[i]->Fit(f[i]);
     gmul[i]->Fit(f[i]);
     gPad->SetLogy();
-    drawLatex(0.2,0.2,Form("%s",centname[i].Data()),0.05);
+    drawLatex(0.2,0.2,Form("%s",centnamestring[i].Data()),0.05);
     f[i]->GetParameters(par);
     f2[i]->SetParameters(par);
     cout <<centname[i].Data() <<" ";
@@ -65,6 +66,15 @@ void pi0hist()
     cout<<endl;
     addpdf(pdf);
   }
+
+  c->cd(6);
+  TLegend* leg = new TLegend(0.2,0.2,0.88,0.88);
+  leg->AddEntry(g[0][0],"#pi^{0}","pe");
+  leg->AddEntry(g[1][0],"#pi^{+}","pe");
+  leg->AddEntry(g[2][0],"#pi^{-}","pe");
+  leg->Draw();
+  leg->SetHeader("Au+Au 62.4 GeV");
+
     // addpdf(pdf);
   pdf->On();
   pdf->Close();

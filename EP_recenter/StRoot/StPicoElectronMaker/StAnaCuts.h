@@ -1,13 +1,6 @@
 #ifndef StAnaCuts_H
 #define StAnaCuts_H
 
-/* **************************************************
- *
- *  Authors: Guannan Xie <guannanxie@lbl.gov>
- *           Mustafa Mustafa <mmustafa@lbl.gov>
- *
- * **************************************************
- */
 
 #include "Rtypes.h"
 #include <string>

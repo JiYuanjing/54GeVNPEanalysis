@@ -33,28 +33,28 @@
 //   fit2->SetLineColor(kMagenta);
 //   fit2->Draw("same"); 
 // } 
-// void myexp(Double_t *x, Double_t *par){
-//   if ((x[0]<1.9&&x[0]>1.7)||(x[0]>1&&x[0]<1.2)){
-//   // if (  (x[0]<1.2&&x[0]>1) || x[0]<1.8&&x[0]>1.65){
-//     TF1::RejectPoint();
-//   }
-//   else return std::exp(par[0]+par[1]*x[0]);
-//   // else return std::exp(par[0]+par[1]*x[0]+par[2]*x[0]*x[0]);
-// }
-// void constrainfit(){
-//   // TFile* file = TFile::Open("Nsigma.root");
-//   // TFile* file = TFile::Open("Nsigma_2_5.root");
-//   TFile* file = TFile::Open("Nsigma_6_8_sys.root");
-//   TH1F* hey = (TH1F*)file->Get("hyield_pi");
-//   TF1* fit = new TF1("fit",myexp,0.5,3,2); 
-//   // TF1* fit = new TF1("fit",myexp,0.5,3,3); 
-//   hey->Draw();
-//   hey->GetXaxis()->SetRangeUser(0.5,0.8);
-//   // hey->GetXaxis()->SetRangeUser(0.7,3);
-//   gPad->SetLogy();
-//   hey->Fit(fit);
-//
-// } 
+void myexp(Double_t *x, Double_t *par){
+  if ((x[0]<1.9&&x[0]>1.7)||(x[0]>1&&x[0]<1.2)){
+  // if (  (x[0]<1.2&&x[0]>1) || x[0]<1.8&&x[0]>1.65){
+    TF1::RejectPoint();
+  }
+  else return std::exp(par[0]+par[1]*x[0]);
+  // else return std::exp(par[0]+par[1]*x[0]+par[2]*x[0]*x[0]);
+}
+void constrainfit(){
+  // TFile* file = TFile::Open("Nsigma.root");
+  TFile* file = TFile::Open("Nsigma_2_8.root");
+  // TFile* file = TFile::Open("Nsigma_6_8_sys.root");
+  TH1F* hey = (TH1F*)file->Get("hyield_pi");
+  TF1* fit = new TF1("fit",myexp,0.5,3,2); 
+  // TF1* fit = new TF1("fit",myexp,0.5,3,3); 
+  hey->Draw();
+  hey->GetXaxis()->SetRangeUser(0.5,0.8);
+  // hey->GetXaxis()->SetRangeUser(0.7,3);
+  gPad->SetLogy();
+  hey->Fit(fit);
+
+} 
 // void myexp(Double_t *x, Double_t *par){
 //   if ((x[0]>0.4&&x[0]<0.45)){
 //   TF1::RejectPoint();

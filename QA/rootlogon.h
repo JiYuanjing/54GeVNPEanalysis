@@ -272,7 +272,12 @@ void setGraphStyle(TGraphErrors* gr, int color, int marker, int mSize, int lSize
   gr->SetMarkerSize(mSize);
   gr->SetLineWidth(lSize);
 }
-
+void drawLatex(double x,double y,const char* txt,double size)
+{
+   TLatex lat;
+   lat.SetTextSize(size);
+   lat.DrawLatexNDC ( x, y, txt);
+}
 //__________________________________________________
 TLine* drawLine(Double_t xlow,Double_t ylow, Double_t xup, Double_t yup, Double_t lineWidth, Int_t lineStyle,Int_t lineColor)
 {

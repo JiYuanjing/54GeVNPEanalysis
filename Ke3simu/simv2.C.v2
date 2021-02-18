@@ -1,0 +1,293 @@
+#include <myFunction.h>
+#include "TString.h"
+#include "TStopwatch.h"
+#include "THelixTrack.h"
+#include <StHelixD.h>
+#include <StPhysicalHelixD.h>
+#include "TVector3.h"
+#include "TLorentzVector.h"
+#include <iostream>
+#include "TGraphAsymmErrors.h"
+#include "SystemOfUnits.h"
+
+using namespace std;
+void simv2(int npart=1e7,int rdnb=0,int mode=0 ,TString outname="gammav2")
+{
+  TStopwatch*  time = new TStopwatch();
+  time->Start();
+  gRandom->SetSeed(rdnb);
+  pydecay = TPythia6Decayer::Instance();
+  pydecay->Init();
+  pydecay->SetDecayTableFile("test.txt");
+  pydecay->ReadDecayTable();
+  int MomParticleId=-1;
+  float Mass = -1;
+  TLorentzVector* b_d;
+  //open all decay channels
+  //if have electron then fill
+  setDecayChannels(mode);  //dalitz decay
+  cout<<"check if kaon decay"<<TPythia6::Instance()->GetMDCY (321, 1)<<endl;;
+  cout<<"check if pion decay"<<TPythia6::Instance()->GetMDCY (211, 1)<<endl;;
+  cout<<"check if proton decay"<<TPythia6::Instance()->GetMDCY (2212, 1)<<endl;;
+  cout<<"check if D0 decay"<<TPythia6::Instance()->GetMDCY (421, 1)<<endl;;
+  TPythia6::Instance()->SetPMAS(321,4,3.70900E+03);
+
+  b_d = new TLorentzVector;
+  if (mode==0) MomParticleId = 321;
+  /* if (mode==0) MomParticleId = 421; */
+  else if (mode==1) MomParticleId = -1 * Cuts::KaonId;
+  else if (mode==2 || mode == 3) MomParticleId = 130; //K_L0
+  Mass = Cuts::M_Kaon;
+
+
+  TClonesArray ptl("TParticle", 10);
+  bookHists(mode);
+  initHists();
+  for (int ipart = 0; ipart < npart; ipart++)
+  {
+    if (!(ipart % 100000))
+      cout << "____________ ipart = " << ipart / static_cast<float>(npart) << " ________________" << endl;
+    getKinematics(*b_d, Mass);
+    int cent=-1;
+    float EP = -999;
+    getCentAndEP(cent,EP);
+    hCent->Fill(cent);
+    hEP->Fill(EP);
+    /* cout<<"decay"<<endl; */
+    decayAndFill(MomParticleId, b_d, ptl,EP ,cent, mode);
+  }
+
+  TFile * file = new TFile(Form("%s.root",outname.Data()),"recreate");
+  Write(file);
+  file->Close();
+  time->Stop();
+  time->Print();
+}
+void decayAndFill(int const kf, TLorentzVector* mother,  TClonesArray& daughters,float EP,int cent,int mode)
+{
+  double ptweight=0,phiweight=0;
+  getPi0Weight(mother,cent,EP,ptweight,phiweight);
+  float mdeltaphi = getDeltaPhi(mother->Phi(),EP);
+  pKaonV2->Fill((Double_t)mother->Perp() , (Double_t)mother->Eta(), (Double_t)cent, (Double_t)cos(2*(mother->Phi()-EP)), (Double_t)ptweight*phiweight);
+  hKaonSpec->Fill((Double_t)mother->Perp(),(Double_t)mother->Eta(), (Double_t)cent, (Double_t)ptweight);
+
+  pydecay->Decay(kf, mother);
+  pydecay->ImportParticles(&daughters);
+  // cout<<"decay start"<<endl;
+  TLorentzVector* gammaMom = new TLorentzVector;
+  TLorentzVector* newgamma = new TLorentzVector;
+  int nGamma=0;
+  int nTrk = daughters.GetEntriesFast();
+  TVector3 v0_e;
+  TVector3 v0_K(0,0,0);
+  /* if (nTrk>1) cout<< nTrk<<endl; */
+  for (int iTrk=0;iTrk<nTrk;++iTrk)
+  {
+    TParticle* ptl0 = (TParticle*)daughters.At(iTrk);
+    /* cout <<ptl0->GetPdgCode() <<" "; */
+    if (abs(ptl0->GetPdgCode())==Cuts::ElectronId)
+    {
+      ptl0->Momentum(*gammaMom);
+      if (gammaMom->Perp()<0.1) continue;
+      v0_e.SetXYZ(ptl0->Vx() * 0.1, ptl0->Vy() * 0.1, ptl0->Vz() * 0.1); //turn to cm
+      TVector3 trans(gammaMom->Px(),gammaMom->Py(),gammaMom->Pz());
+      TVector3 newv0_e;
+      /* cout << ptl0->Vz()<< endl; */
+      //add magnitude
+      double decayL = v0_e.Mag();
+      // cout <<decayL <<endl;
+      if (mode==0 || mode ==1) // K+ K-
+      {
+        //Kaon helix
+       int charge;
+       if (mode == 0)  charge=1;
+       if (mode == 1) charge=-1; 
+       StPhysicalHelixD HelixK( mother->Vect(),  v0_K, 0.5*kilogauss, charge); 
+       newv0_e  = HelixK.at(decayL);
+       hDecayL->Fill(decayL);
+        //rotate electon mom
+        // double angle = decayL*HelixK.curvature();
+        TVector3 v1(-1*HelixK.xcenter(), -1*HelixK.ycenter(),0);
+        TVector3 v2(newv0_e.x()-HelixK.xcenter(), newv0_e.y()-HelixK.ycenter(),0);
+        // double angle = v2.Angle(v1); 
+        // cout<<"2: "<<TMath::ATan2( v2.Unit().Cross(v1.Unit()).Mag() , v2.Unit().Dot(v1.Unit()) ) <<" "<<angle <<endl;
+        double angle = TMath::ATan2( v2.Unit().Cross(v1.Unit()).Mag() , v2.Unit().Dot(v1.Unit()) );
+
+        if (mode==0) trans.RotateZ(angle); // rotation around v1
+        if (mode==1) trans.RotateZ(2*3.14159265-angle); // rotation around v1
+      }
+      else if (mode == 2 || mode == 3) 
+      {
+         newv0_e.SetXYZ(ptl0->Vx() * 0.1, ptl0->Vy() * 0.1, ptl0->Vz() * 0.1);
+      }
+      StPhysicalHelixD HelixE( trans,  newv0_e, 0.5, 1); 
+      double dcaPath = HelixE.pathLength(v0_K);
+      TVector3 DCApos = HelixE.at( dcaPath);
+      newgamma->SetVectM(HelixE.momentumAt(dcaPath,0.5), 0.000511); //mom at DCA position
+
+      fillGamma(newgamma, DCApos, newv0_e,  ptweight, phiweight, EP, cent);
+    }
+    else continue;
+  }
+  /* cout <<endl; */
+  daughters.Clear();
+  delete newgamma;
+  delete gammaMom;
+}
+
+void fillGamma(TLorentzVector* gamma, TVector3 DCApos, TVector3 newv0_e,  double ptweight,double phiweight,float EP,int cent)
+{
+  if (!gamma || gamma->Perp()<0.15) return;
+
+  float gpt = gamma->Perp(); // reserve for mom smearing
+  float gphi = gamma->Phi();
+  TVector3 rPos_e = smearPos( gamma, DCApos);
+  pElectronV2NoCut->Fill((Double_t)gpt,(Double_t)gamma->Eta(),(Double_t)cent,(Double_t)cos(2*(gphi-EP)) ,(Double_t)(ptweight*phiweight));
+  hElectronSpecNoCut->Fill((Double_t)gpt,(Double_t)gamma->Eta(),(Double_t)cent,(Double_t)ptweight);
+  if (rPos_e.Mag()<1.5 || newv0_e.Perp()>72 || newv0_e.z() >200){
+    pElectronV2DcaCut->Fill(gpt,gamma->Eta(),cent,cos(2*(gphi-EP)) ,ptweight*phiweight);
+    // hGammav2[cent]->Fill(getDeltaPhi(gphi,EP),gpt,gamma->Eta(),ptweight*phiweight);
+    hElectronSpecDcaCut->Fill(gpt,gamma->Eta(),cent,ptweight);
+  }
+}
+
+TVector3 smearPos(TLorentzVector const* rMom, TVector3 const& pos)
+{
+  double sigmaPosZ = sqrt( 1.25762e-02  + 5.26568e-03/rMom->Perp()/rMom->Perp());
+  double sigmaPosXY = sqrt( 1.04282e-02 + 2.28596e-03/rMom->Perp()/rMom->Perp());
+
+  TVector3 newPos(pos);
+  newPos.SetZ(0);
+  TVector3 momPerp(-rMom->Vect().Y(), rMom->Vect().X(), 0.0);
+  newPos -= momPerp.Unit() * sigmaPosXY;
+
+  return TVector3(newPos.X(), newPos.Y(), pos.Z() + sigmaPosZ);
+}
+void setDecayChannels(int mode)
+{
+  int defirst=1,desecond=900;
+  for (int idc = defirst; idc < desecond+1; idc++) {
+    TPythia6::Instance()->SetMDME(idc, 1, 0);
+  }
+  TPythia6::Instance()->SetMDCY(321,1,1);
+
+  int onfirst,onsecond;
+  if (mode==0 || mode==1) {onfirst=634; onsecond=634;}
+  /* if (mode==0 || mode==1) {onfirst=747; onsecond=754;} */
+  if (mode==2 || mode ==3) {onfirst=572; onsecond=573;}
+  for (int idc = onfirst;idc<onsecond+1;idc++){
+    TPythia6::Instance()->SetMDME(idc,1,1);
+    TPythia6::Instance()->SetBRAT(idc,1);
+    /* cout << "turn on "<<idc<<endl; */
+  }
+
+}
+void getKinematics(TLorentzVector& b, double const mass)
+{
+  float const pt = gRandom->Uniform(Cuts::momentumrange.first,Cuts::momentumrange.second);
+  float const y = gRandom->Uniform( Cuts::EtaRange*-1, Cuts::EtaRange);
+  float const phi = TMath::TwoPi() * gRandom->Rndm();
+  float const mT = sqrt(mass * mass + pt * pt);
+  float const pz = mT * sinh(y);
+  float const E = mT * cosh(y);
+  b.SetPxPyPzE(pt * cos(phi), pt * sin(phi) , pz, E);
+  // b.SetPtEtaPhiM(pt,y,phi,mass);
+}
+void getPi0Weight(TLorentzVector* mother,int cent,float EP,double &ptweight,double &phiweight)
+{
+  double ptrangeweight = Cuts::momentumrange.second-Cuts::momentumrange.first;
+  float mpt = mother->Perp();
+  float mphi = mother->Phi();
+  float mt = (mother->Mt()-Cuts::M_Kaon)/2.0; 
+  float v2 = fPi0v2[cent]->Eval(mt)*2.;
+  if (mt>1.4) v2=0.07; 
+  phiweight = 1+2*v2*std::cos(2*(mphi-EP));
+  ptweight = fpispectra[cent]->Eval(mpt)*(ptrangeweight)*(2*Cuts::EtaRange)*2*3.14*mpt; 
+}
+float getDeltaPhi(float mphi,float EP)
+{
+  //mv  into the same period
+  float mdeltaphi;
+  if (mphi<0) mphi+=2*TMath::Pi();
+  mdeltaphi = mphi-EP;
+  if (mdeltaphi<0) mdeltaphi+=2*TMath::Pi();
+  if (mdeltaphi>TMath::Pi()) mdeltaphi-=TMath::Pi();
+  return mdeltaphi;
+}
+void getCentAndEP(int & cent, float & EP)
+{
+  EP = gRandom->Rndm()*TMath::Pi();
+  cent = floor(gRandom->Rndm()*6);
+  //ignore the 60-80%, as the spectra has some problem
+  cent+=2;
+  if (cent==7) cent = gRandom->Rndm()>0.5?7:8;
+}
+void bookHists(int mode)
+{
+  //pi0spectra and v2
+  TFile* fD0 = TFile::Open("data/Ks.root");
+  TString namesp[9]={"60_80","60_80","40_60","40_60","30_40","20_30","10_20","5_10","0_5"};
+  for (int ic=0;ic<Cuts::nCent;ic++)
+  {
+    fpispectra[ic] = (TGraphAsymmErrors*)fD0->Get(Form("%s",namesp[ic].Data()));
+  }
+  fD0->Close();
+
+  cout <<"oK?" <<endl;
+  TFile* file = TFile::Open("data/fitPIDV2.root");
+  TString namev2[9]={"50_60","50_60","50_60","40_50","30_40","20_30","10_20","0_10","0_10"};
+  for (int ic=0;ic<Cuts::nCent;ic++)
+  {
+    /* fPi0v2[ic] = (TF1*)file->Get("fun"); */
+    // just as a test 
+    fPi0v2[ic] = new TF1( "fun", "[0]/(1.+TMath::Exp(-(x-[1])/[2]))-[0]/(1.+TMath::Exp(([1])/[2]))", 0,5);
+    fPi0v2[ic]->SetParameter(0,1.79688e-01);
+    fPi0v2[ic]->SetParameter(1, -1.09108e-01);
+    fPi0v2[ic]->SetParameter(2,1);
+  }
+  file->Close();
+
+}
+void initHists()
+{
+  //event level
+  hCent = new TH1F("hCent","hCent",9,-0.5,8.5);
+  hEP = new TH1F("hEP","hEP",360,0,TMath::Pi());
+  hDecayL = new TH1F("hDecayL","hDecayL",100,0,400);
+
+  //Total Kaon
+  pKaonV2 = new TProfile3D("pKaonV2","pKaonV2;p_{T};#eta;Cent",200,0,4,150,-1.5,1.5,9,-0.5,8.5);
+  hKaonSpec = new TH3D("hKaonSpec","hKaonSpec;p_{T};#eta;Cent",200,0,4,150,-1.5,1.5,9,-0.5,8.5);
+
+  //after cut
+  pElectronV2DcaCut= new TProfile3D("pElectronV2DcaCut","pElectronV2DcaCut;p_{T}[GeV/c];#eta;Cent",200,0,4,150,-1.5,1.5,9,-0.5,8.5);
+  pElectronV2DcaCut->SetDirectory(0);
+  // for (int ic=0;ic<Cuts::nCent;ic++) {}
+
+  hElectronSpecDcaCut= new TH3D("hElectronSpecDcaCut","hElectronSpecDcaCut;p_{T}[GeV/c];#eta;Cent",200,0,4,150,-1.5,1.5,9,-0.5,8.5);
+  hElectronSpecDcaCut->SetDirectory(0);
+
+  //for check?
+  pElectronV2NoCut = new TProfile3D("pElectronV2NoCut","pElectronV2NoCut;p_{T};#eta;Cent",200,0,4,150,-1.5,1.5,9,-0.5,8.5);
+  // hPi0v2 = new TH3D("hPi0v2","hPi0v2;#delta#phi;p_{T};Cent",100,0,TMath::Pi() ,150,0,15,9,-0.5,8.5);
+  hElectronSpecNoCut = new TH3D("hElectronSpecNoCut","hElectronSpecNoCut;p_{T};#eta;Cent",200,0,4,150,-1.5,1.5,9,-0.5,8.5);
+}
+void Write(TFile* file)
+{
+  hEP->Write();
+  hCent->Write();
+  hKaonSpec->Write();
+  pKaonV2->Write();
+  pElectronV2DcaCut->Write();
+  for (int ic=0;ic<Cuts::nCent;ic++)
+  {
+    // hGammav2[ic]->Write();
+    // fpispectra[ic]->Write();
+    // fPi0v2[ic]->Write();
+  }
+  hElectronSpecDcaCut->Write(); 
+  pElectronV2NoCut->Write(); 
+  // hPi0v2->Write();
+  hElectronSpecNoCut->Write();
+  hDecayL->Write();
+}

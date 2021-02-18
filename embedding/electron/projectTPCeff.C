@@ -16,4 +16,11 @@ void projectTPCeff()
    TH1F* hRcX =(TH1F*)hRc->ProjectionX("hRcX",3,9);
    hRcX->Divide(hMcX);
    hRcX->Draw();
+
+   
+   TH2F* hMomRes = (TH2F*)file->Get("hMomResolution");
+  
+   hMomRes->FitSlicesY();
+   hMomRes_sigma = (TH1F*)gDirectory->Get("hMomResolution_2");
+   hMomRes_sigma->Draw();
 } 

@@ -34,7 +34,8 @@ void fitdirphov2()
     fit[i] = new TF1(Form("fitdirphov2_%s",centname[i].Data()), myFit,0,15,7);
     fit[i]->SetNpx(15000);
     if (i==0) 
-      fit[i]->FixParameter(6,5);
+    /* {fit[i]->FixParameter(6,3.5); fit[i]->FixParameter(0,0);} */
+    {fit[i]->FixParameter(6,3.5); fit[i]->SetParLimits(0, 0,1e-3);}
     else if (i==1)
       fit[i]->FixParameter(6,6.5);
     else if (i==2)

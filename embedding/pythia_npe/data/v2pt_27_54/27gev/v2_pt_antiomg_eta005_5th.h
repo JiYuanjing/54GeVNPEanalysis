@@ -1,0 +1,16 @@
+double pt_antiomg_0_eta005_5th[5]={1.34789,1.99219,2.42095,2.83535,3.36525,};
+double ptErr_antiomg_0_eta005_5th[5]={0,0,0,0,0,};
+double vnSig_antiomg_0_eta005_5th[5]={0.061167,0.0872256,0.121631,0.198837,0.199852,};
+double vnSigErr_antiomg_0_eta005_5th[5]={0.0135221,0.0190502,0.0246228,0.0484496,0.0556012,};
+double pt_antiomg_1_eta005_5th[3]={1.28565,2.1891,3.34753,};
+double ptErr_antiomg_1_eta005_5th[3]={0,0,0,};
+double vnSig_antiomg_1_eta005_5th[3]={0.0184923,0.0973734,0.0343128,};
+double vnSigErr_antiomg_1_eta005_5th[3]={0.0317736,0.0255347,0.0894961,};
+double pt_antiomg_2_eta005_5th[3]={1.28721,2.18199,3.36924,};
+double ptErr_antiomg_2_eta005_5th[3]={0,0,0,};
+double vnSig_antiomg_2_eta005_5th[3]={0.0889193,0.0912405,0.241675,};
+double vnSigErr_antiomg_2_eta005_5th[3]={0.0141631,0.0128062,0.0468903,};
+double pt_antiomg_3_eta005_5th[3]={1.29569,2.14912,3.36705,};
+double ptErr_antiomg_3_eta005_5th[3]={0,0,0,};
+double vnSig_antiomg_3_eta005_5th[3]={0.0394199,0.18955,0.371196,};
+double vnSigErr_antiomg_3_eta005_5th[3]={0.0644605,0.0637659,0.41776,};

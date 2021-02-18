@@ -44,8 +44,8 @@ namespace anaCuts
    int const NHitsFit = 20;
    int const NHitsDedx = 15;
    int const NHitsFit2Poss = 0.52;
-   // float const Dca = 3;// < cm
-   float const Dca = 1.5;// < cm
+   float const Dca = 3;// < cm
+   // float const Dca = 1.5;// < cm
    float const Eta = 0.8; 
    float const pTof=0.01;
    float const piTof=0.005;

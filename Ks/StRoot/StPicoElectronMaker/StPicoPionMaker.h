@@ -97,6 +97,9 @@ class StPicoPionMaker : public StMaker
     TH3F* hnSigE_pi;  //ks pi
     TH3F* hnSigE_pi_LS;
     TH3F* hnSigE_pi_tof;
+    TH3F* hnSigE_pi_pt;  //ks pi
+    TH3F* hnSigE_pi_LS_pt;
+    TH3F* hnSigE_pi_tof_pt;
 
     // TH2F* hnSigE_k;
     // TH2F* hnSigE_Cut;

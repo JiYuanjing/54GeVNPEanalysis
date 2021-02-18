@@ -10,7 +10,7 @@ void addpdf(TPDF* pdf,TCanvas* c)
   pagenumber++;
   pdf->SetTextSize(0.03);
   pdf->SetTextColor(kGray+1);
-  pdf->TextNDC(0.975,0.05,Form("%d",pagenumber));
+  /* pdf->TextNDC(0.975,0.05,Form("%d",pagenumber)); */
   pdf->NewPage();
   pdf->Off();
 }
@@ -38,39 +38,52 @@ void compare2PE_my()
   // TString realdata = "incEv2_0930.root";
   // TString realdata = "incEv2_1001.root";
   // TString realdata = "incEv2_1010.root";
-  TString realdata = "data/incEv2_1012.root";
+  /* TString realdata = "data/incEv2_1012.root"; */
+  TString realdata = "data/incEv2_Apr30.root";
   // TString realdata = "checkMisPID.root";
   // TString realdata = "qa5.root";
   // TString mcdata = "embeddQa0825.root";
   // TString mcdata = "embeddQa_phicut0827.root";
   // TString mcdata = "rescale_combine1002.root";
-  TString mcdata = "rescale_combine.root";
+  TString mcdata = "rescaleFile/rescale_gamma.root";
+  /* TString mcdata = "rescale_combine.root"; */
+  /* TString mcdata = "rescaleFile/rescale_combine1015.root"; */
   // TString mcdata = "rescale_combine_0.85.root";
   // TString mcdata = "rescale_combine_1.15.root";
-  // TString mcdata = "rescaleFile/rescale_gamma_pi0.root";
-  // TString mcdata = "rescaleFile/rescale_pi0.root";
+  /* TString mcdata = "rescaleFile/rescale_gamma_pi0.root"; */
+  /* TString mcdata = "rescaleFile/rescale_pi0.root"; */
     // drawQaNhits("NFit",pdf,c,"incEv2_0905.root",mcdata);
   TString pi0Mc="rescaleFile/rescale_pi0.root", etaMc="rescaleFile/rescale_eta.root";
   TString gammaMc1="rescaleFile/rescale_gamma_pi0.root", gammaMc2="rescaleFile/rescale_gamma_eta.root",gammaMc3="rescaleFile/rescale_gamma_dirpho.root";
   // TString gammaMc1="rescaleFile/rescale_gamma_pi0.root", gammaMc2="rescaleFile/rescale_gamma_eta.root",gammaMc3="rescaleFile/test_pi0_DzGm.root";
  
   drawElectronComponent(mcdata, pi0Mc,etaMc,gammaMc1,gammaMc2,gammaMc3,pdf,c);
-  drawQaNhits("NFit",pdf,c,realdata,mcdata);
-  drawNhitsTagePt("NFit",pdf,c,realdata,mcdata);
+  drawQaNhits("NHitsFit",pdf,c,realdata,mcdata);
+  drawNhitsTagePt("NHitsFit",pdf,c,realdata,mcdata);
   drawQaDca("DCA",pdf,c,realdata,mcdata);
   drawPartPtEtaPhi("Partner e",pdf ,c ,realdata,mcdata); 
+  drawPartPtPlot("Partner e scale0.7",pdf ,c ,realdata,"rescale_combine_0.7.root","0.7"); 
+  drawPartPtPlot("Partner e scale0.8",pdf ,c ,realdata,"rescale_combine_0.8.root","0.8"); 
+  drawPartPtPlot("Partner e",pdf ,c ,realdata,"rescale_combine.root","1"); 
+  drawPartPtPlot("Partner e scale1.2",pdf ,c ,realdata,"rescale_combine_1.2.root","1.2"); 
+  drawPartPtPlot("Partner e scale1.3",pdf ,c ,realdata,"rescale_combine_1.3.root","1.3"); 
  
   drawInvMass("Inv mass of dielectron",pdf ,c ,realdata,mcdata); 
   drawPairDca("pair DCA",pdf,c,realdata,mcdata);
-  // drawDecayLplot("pair DecayLength",pdf,c,realdata,"rescale_combine_0.7.root","0.7");
-  // drawDecayLplot("pair DecayLength",pdf,c,realdata,"rescale_combine_0.8.root","0.8");
+  drawPairDcaPlot("pair DCA",pdf,c,realdata,"rescale_combine_0.7.root","0.7");
+  drawPairDcaPlot("pair DCA",pdf,c,realdata,"rescale_combine_0.8.root","0.8");
+  drawPairDcaPlot("pair DCA",pdf,c,realdata,"rescale_combine.root","1");
+  drawPairDcaPlot("pair DCA",pdf,c,realdata,"rescale_combine_1.2.root","1.2");
+  drawPairDcaPlot("pair DCA",pdf,c,realdata,"rescale_combine_1.3.root","1.3");
+  drawDecayLplot("pair DecayLength",pdf,c,realdata,"rescale_combine_0.7.root","0.7");
+  drawDecayLplot("pair DecayLength",pdf,c,realdata,"rescale_combine_0.8.root","0.8");
 
   drawDecayLplot("pair DecayLength",pdf,c,realdata,"rescale_combine_0.85.root","0.85");
   drawDecayLplot("pair DecayLength",pdf,c,realdata,"rescale_combine.root","1");
   drawDecayLplot("pair DecayLength",pdf,c,realdata,"rescale_combine_1.15.root","1.15");
 
-  // drawDecayLplot("pair DecayLength",pdf,c,realdata,"rescale_combine_1.2.root","1.2");
-  // drawDecayLplot("pair DecayLength",pdf,c,realdata,"rescale_combine_1.3.root","1.3");
+  drawDecayLplot("pair DecayLength",pdf,c,realdata,"rescale_combine_1.2.root","1.2");
+  drawDecayLplot("pair DecayLength",pdf,c,realdata,"rescale_combine_1.3.root","1.3");
   //
   // //below are QA for the data
   drawDataQa("Tag e for real data",pdf,c,realdata,mcdata);
@@ -135,11 +148,9 @@ void drawElectronComponent(TString totalMc, TString pi0Mc, TString etaMc, TStrin
       hRecoE2D[ip]->SetDirectory(0);
       hTagE[ip] = (TH1F*)hTagE2D[ip]->ProjectionX(Form("hTagE_%s",histname[ip].Data()),3,9);
       hTagE[ip]->SetDirectory(0);
-      
       hRecoE[ip] = (TH1F*)hRecoE2D[ip]->ProjectionX(Form("hRecoE_%s",histname[ip].Data()),3,9);
       hRecoE[ip]->SetDirectory(0);
    }
-
 
    c->cd(); 
    gPad->SetLogy(1);
@@ -149,16 +160,20 @@ void drawElectronComponent(TString totalMc, TString pi0Mc, TString etaMc, TStrin
    cout <<"the scale factor for gamma: "<< hTagE[3]->Integral()<<" "<<hTagE[5]->Integral() <<endl;
    TH1F* hcombine = (TH1F*)hTagE[0]->Clone("hcombine");
    hcombine = (TH1F*)hcombine->Rebin(nbins,"hcombine",ptedge);
-
+   hTagE[0]->GetXaxis()->SetTitle("p_{T}(GeV/c)");
+   hTagE[0]->GetYaxis()->SetTitle("Counts");
    TH1F* hfractions[nfiles]; 
    for (int ip=0;ip<nfiles;ip++)
    {
       hTagE[ip]->SetMarkerColor(color[ip]);
       hTagE[ip]->SetLineColor(color[ip]);
+      hRecoE[ip]->SetMarkerStyle(24);
+      hRecoE[ip]->SetMarkerColor(color[ip]);
       // if (ip==nfiles-1) hTagE[ip]->Rebin(4); 
       hTagE[ip]->Scale(1./hTagE[ip]->GetBinWidth(1));
       if (ip==0) hTagE[ip]->Draw();
       else if (ip>0) hTagE[ip]->Draw("same");
+      /* hRecoE[ip]->Draw("same"); */
       leg1->AddEntry(hTagE[ip],legendname[ip].Data(),"lp");
       hfractions[ip]=(TH1F*)hTagE[ip]->Clone(Form("fraction_%s",histname[ip].Data()));
       hfractions[ip]->SetDirectory(0);
@@ -280,8 +295,8 @@ void drawQaDca(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc)
   c->Divide(3,2);  
   int ipad=1;
   double x[20],y[20];
-  int const nbins = 8;
-  double ptedge[nbins+1]={0.25,0.4,0.65,0.85,1,1.2,1.6,2.0,2.8};
+  int const nbins = 13;
+  double ptedge[nbins+1]={0.25,0.3,0.4,0.45,0.5,0.55,0.6,0.65,0.85,1,1.2,1.6,2.0,2.8};
 
   int ibin=0;
   // for (int ip=1;ip<=10;ip++)
@@ -453,8 +468,10 @@ void drawNhitsTagePt(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc
   // int const nbins = 7;
   // double ptedge[nbins+1]={0.25,0.3,0.4,0.6,1.0,1.4,1.8,3};
 
-  int const nbins = 8;
-  double ptedge[nbins+1]={0.2,0.4,0.65,0.85,1,1.2,1.6,2.0,2.8};
+  // int const nbins = 8;
+  // double ptedge[nbins+1]={0.2,0.4,0.65,0.85,1,1.2,1.6,2.0,2.8};
+  int const nbins = 15;
+  double ptedge[nbins+1]={0.25,0.3,0.4,0.45,0.5,0.55,0.6,0.65,0.85,0.9,1,1.1,1.2,1.6,2.0,2.8};
 
   // for (int ip=1;ip<=20;ip++)
   for (int ip=0;ip<nbins;ip++)
@@ -478,13 +495,17 @@ void drawNhitsTagePt(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc
     ibin++;
 
     c->cd(ipad);
+    /* hrc->GetXaxis()->SetTitle("partner e p_{T} [GeV/c]"); */
+    hrc->GetXaxis()->SetTitle("nHitsFit");
+    hrc->GetYaxis()->SetTitle("A.U.");
+    hrc->GetYaxis()->SetTitleOffset(1.5);
     hrc->DrawCopy();
-    hrc->GetXaxis()->SetTitle("partner e p_{T} [GeV/c]");
     hdata->DrawCopy("same");
-    drawLatex(0.2,0.6,Form("Tag e: %0.1f<p_{T}<%0.1f",hDCAdata->GetXaxis()->GetBinLowEdge(ip),hDCAdata->GetXaxis()->GetBinUpEdge(ip)),0.035);
+    /* drawLatex(0.2,0.7,Form("Tag e: %0.1f<p_{T}<%0.1f GeV/c",hDCAdata->GetXaxis()->GetBinLowEdge(ip),hDCAdata->GetXaxis()->GetBinUpEdge(ip)),0.045); */
+    drawLatex(0.18,0.88,Form("Tag e %0.2f<p_{T}<%0.2f GeV/c", ptedge[ip], ptedge[ip+1]), 0.04);
     ipad++;
     
-    if (ip%5==0)
+    if ((ip+1)%5==0)
     {
       c->cd(6);
       TLegend* leg = new TLegend(0.2,0.2,0.7,0.7);  
@@ -503,7 +524,7 @@ void drawNhitsTagePt(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc
   gnHitsSys->SetName("gPartEnHitsSys");
   TH1* hrc = (TH1*)hDCArc->ProjectionY("hrc");
   TH1* hdata = (TH1*)hDCAdata->ProjectionY("hdata");
-  cout << "nHits sys:  " <<calSys(hdata,hrc,21,50,25,50)<<endl;
+  cout << "nHitsFit sys:  " <<calSys(hdata,hrc,21,50,25,50)<<endl;
 }
 //----------------------------------------------------------------------
 void drawPartPtEtaPhi(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc)
@@ -533,8 +554,10 @@ void drawPartPtEtaPhi(TString head, TPDF* pdf, TCanvas* c,TString real,TString m
   // int const nbins = 9;
   // double ptedge[nbins+1]={0.25,0.3,0.4,0.6,1.0,1.4,1.8,2.2,2.6,3};
 
-  int const nbins = 8;
-  double ptedge[nbins+1]={0.25,0.4,0.65,0.85,1,1.2,1.6,2.0,2.8};
+  /* int const nbins = 8; */
+  /* double ptedge[nbins+1]={0.25,0.4,0.65,0.85,1,1.2,1.6,2.0,2.8}; */
+  int const nbins = 1;
+  double ptedge[nbins+1]={0.2,2.8};
 
   // c->Clear();
   TH1* hrc_x = (TH1*)hDCArc->ProjectionX("hrc_x");
@@ -547,7 +570,7 @@ void drawPartPtEtaPhi(TString head, TPDF* pdf, TCanvas* c,TString real,TString m
   hdata_x->GetYaxis()->SetTitle("Arb. unit");
   hrc_x->GetYaxis()->SetTitle("Arb. unit");
   hrc_x->GetXaxis()->SetTitle("partner e p_{T} [GeV/c]");
-  hrc_x->DrawCopy();
+  hrc_x->DrawCopy("p");
   hdata_x->DrawCopy("samep");
   drawLatex(0.6,0.87,"Au+Au 54.4 GeV",0.05);
   drawLatex(0.55,0.8,Form("Tagged e: 0.4<p_{T}<2.5 GeV", head.Data()),0.05);
@@ -560,6 +583,10 @@ void drawPartPtEtaPhi(TString head, TPDF* pdf, TCanvas* c,TString real,TString m
   gPad->SetLogy(0);
   cout <<"partner e pt cut sys "<< calSys(hdata_x,hrc_x,0.25,5,0.3,5 )<< endl;
   c->Clear();
+  // TFile* fPartnerPt = new TFile("output/fPartnerPt.root","recreate");
+  // hrc_x->Write();
+  // hdata_x->Write();
+  // fPartnerPt->Close();
   
   TH1F* ratio = (TH1F*)hrc_x->Clone("hrc2data_x");
   ratio->Divide(hdata_x);
@@ -581,10 +608,14 @@ void drawPartPtEtaPhi(TString head, TPDF* pdf, TCanvas* c,TString real,TString m
     if (ptedge[i]>1.7) hdata_y->Rebin(5); 
     NormHist(hrc_y,kBlue);
     NormHist(hdata_y,kRed);
+    hrc_y->GetXaxis()->SetTitle("#eta");
+    hrc_y->GetYaxis()->SetTitle("A.U.");
+    hrc_y->GetYaxis()->SetRangeUser(0,1);
+    hrc_y->SetMarkerStyle(kOpenCircle);
     hrc_y->DrawCopy();
     hdata_y->DrawCopy("same");
     // drawLatex(0.2,0.6,Form("%s Eta", head.Data()));
-    drawLatex(0.2,0.8,Form("%s Eta %0.1f<pt<%0.1f", head.Data(), ptedge[i], ptedge[i+1]),0.05);
+    drawLatex(0.2,0.85,Form("%s #eta %0.1f<pt<%0.1f GeV/c", head.Data(), ptedge[i], ptedge[i+1]),0.05);
     if ( i==(nbins-1) ) finishThispage=true;
     else if ( i%numOfPlots==(numOfPlots-1) )  finishThispage = true;
     else finishThispage=false;
@@ -599,10 +630,65 @@ void drawPartPtEtaPhi(TString head, TPDF* pdf, TCanvas* c,TString real,TString m
   hrc_z->Rebin(4);
   NormHist(hrc_z,kBlue);
   NormHist(hdata_z,kRed);
+  hrc_z->GetXaxis()->SetTitle("Partner e #phi");
+  hrc_z->GetYaxis()->SetTitle("A.U.");
+  hrc_z->SetMarkerStyle(kOpenCircle);
   hrc_z->DrawCopy();
   hdata_z->DrawCopy("same");
-  drawLatex(0.2,0.8,Form("%s #phi", head.Data()));
+  /* drawLatex(0.2,0.8,Form("%s #phi", head.Data())); */
   addpdf(pdf,c);
+}
+//----------------------------------------------------------------------
+void drawPartPtPlot(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc, TString scale)
+{
+  c->Clear();
+  drawLatex(0.3,0.6,"Partner e Eta/Phi projection");
+  drawLatex(0.4,0.45,"in part e/Tag e pt bin");
+  addpdf(pdf,c); 
+
+  TFile* file = TFile::Open(mc.Data());
+  TString name[3]={"hPartEptetaphi","hPartEptetaphi","hPartEptetaphi_LS"};
+  TH3F* hDCArc = (TH3F*)file->Get(name[0]);
+  hDCArc->SetDirectory(0);
+  file->Close();
+  file = TFile::Open(real.Data());
+  TH3F* hDCAdata = (TH3F*)file->Get(name[1]);
+  TH3F* hDCAdataLS = (TH3F*)file->Get(name[2]);
+
+  hDCAdataLS->SetDirectory(0);
+  hDCAdata->SetDirectory(0);
+  hDCAdata->Sumw2();
+  hDCAdataLS->Sumw2();
+  file->Close();
+  hDCAdata->Add(hDCAdataLS,-1);
+  
+  TH1* hrc_x = (TH1*)hDCArc->ProjectionX("hrc_x");
+  TH1* hdata_x = (TH1*)hDCAdata->ProjectionX("hdata_x");
+  NormHist(hrc_x,kBlue,hrc_x->GetXaxis()->FindBin(0.4),hrc_x->GetXaxis()->FindBin(2.5));
+  NormHist(hdata_x,kRed,hdata_x->GetXaxis()->FindBin(0.4),hdata_x->GetXaxis()->FindBin(2.5));
+  hrc_x->GetXaxis()->SetRangeUser(0.25,4);
+  hrc_x->SetMarkerStyle(24);
+  hdata_x->SetMarkerSize(0.8);
+  hdata_x->GetYaxis()->SetTitle("Arb. unit");
+  hrc_x->GetYaxis()->SetTitle("Arb. unit");
+  hrc_x->GetXaxis()->SetTitle("partner e p_{T} [GeV/c]");
+  hrc_x->DrawCopy("p");
+  hdata_x->DrawCopy("samep");
+  drawLatex(0.6,0.87,"Au+Au 54.4 GeV",0.05);
+  drawLatex(0.55,0.8,Form("Tagged e: 0.4<p_{T}<2.5 GeV", head.Data()),0.05);
+  gPad->SetLogy(1);
+  TLegend* leg_tot = new TLegend(0.6,0.62,0.8,0.77);
+  leg_tot->AddEntry( hrc_x,"MC","pe" );
+  leg_tot->AddEntry( hdata_x,"Data","pe" );
+  leg_tot->Draw();
+  addpdf(pdf,c);
+  gPad->SetLogy(0);
+  cout <<"partner e pt cut sys "<< calSys(hdata_x,hrc_x,0.25,5,0.3,5 )<< endl;
+  c->Clear();
+  TFile* fPartnerPt = new TFile(Form("output/fPartnerPt_%s.root",scale.Data()),"recreate");
+  hrc_x->Write();
+  hdata_x->Write();
+  fPartnerPt->Close();
 }
 //----------------------------------------------------------------------
 void drawPairDca(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc)
@@ -648,7 +734,7 @@ void drawPairDca(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc)
   hrc->GetXaxis()->SetTitle("Pair DCA [cm]");
   hrc->GetYaxis()->SetTitle("Arb. unit");
   hrc->DrawCopy();
-  hrc->DrawCopy("E3same");
+  hrc->DrawCopy("same");
   hrc->DrawCopy("psame");
   hdata->SetMarkerStyle(24);
   hdata->SetMarkerSize(1);
@@ -661,14 +747,20 @@ void drawPairDca(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc)
   leg_tot->AddEntry(hdata, "Data", "pe");
   leg_tot->Draw();
   addpdf(pdf,c); 
+  // TFile* fPairDca = new TFile("output/fPairDca.root","recreate");
+  // hrc->Write();
+  // hdata->Write();
+  // fPairDca->Close();
 
   // int const nbins = 7;
   // double ptedge[nbins+1]={0.25,0.3,0.4,0.6,1.0,1.4,1.8,3};
   
-  int const nbins = 8;
-// double ptedge[nbin+1]={0.2,0.3,0.4,0.5,0.6,0.7,0.85,1,1.2,1.6,2.0,2.8};
-// double ptedge[nbins+1]={0.2,0.42,0.67,0.85,1,1.2,1.6,2.0,2.8};
-  double ptedge[nbins+1]={0.2,0.4,0.65,0.85,1,1.2,1.6,2.0,2.8};
+  //   int const nbins = 8;
+  // // double ptedge[nbin+1]={0.2,0.3,0.4,0.5,0.6,0.7,0.85,1,1.2,1.6,2.0,2.8};
+  // // double ptedge[nbins+1]={0.2,0.42,0.67,0.85,1,1.2,1.6,2.0,2.8};
+  //   double ptedge[nbins+1]={0.2,0.4,0.65,0.85,1,1.2,1.6,2.0,2.8};
+  int const nbins = 13;
+  double ptedge[nbins+1]={0.25,0.3,0.4,0.45,0.5,0.55,0.6,0.65,0.85,1,1.2,1.6,2.0,2.8};
 
   c->Clear();
   int iv=3,ih=2;
@@ -693,20 +785,92 @@ void drawPairDca(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc)
     x[ip] = 0.5*(ptedge[ip]+ptedge[ip+1]);
     // cout <<"pair DCA sys: (1.5) "<< sys << endl;  
 
+    hrc->GetXaxis()->SetTitle("pair DCA (cm)");
+    hrc->GetYaxis()->SetTitle("A.U.");
     hrc->DrawCopy();
     hdata->DrawCopy("same");
-    drawLatex(0.4,0.7,Form("pair DCA %0.1f<pt<%0.1f", ptedge[ip],ptedge[ip+1]),0.035);
-    if (ipad==iv*ih || ip==nbins-1) 
-    {  
-      addpdf(pdf,c); 
-      c->Clear();
-      c->Divide(iv,ih);
-      ipad=1;
-    }
+    drawLatex(0.4,0.85,Form("Tag e %0.2f<p_{T}<%0.2f GeV/c", ptedge[ip],ptedge[ip+1]),0.04);
     ipad++;
+    if ((ip+1)%5==0) 
+    {  
+      c->cd(6);
+      TLegend* leg = new TLegend(0.2,0.2,0.7,0.7);  
+      leg->AddEntry(hrc,"MC","lep");
+      leg->AddEntry(hdata,"data","lep");
+      leg->SetHeader(head);
+      leg->Draw();
+      addpdf(pdf,c);
+      ipad=1;
+      c->Clear();
+      c->Draw();
+      c->Divide(3,2);
+    }
   }
   gPairDca = new TGraph(nbins, x, y);
   gPairDca->SetName("gPairDca");
+}
+
+void drawPairDcaPlot(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc,TString scale)
+{
+  TFile* file = TFile::Open(mc.Data());
+  TString name[3]={"hDcaPair","hPairDCA","hPairDCALS"};
+  TH3F* hDCArc = (TH3F*)file->Get(name[0]);
+  hDCArc->SetDirectory(0);
+  file->Close();
+  file = TFile::Open(real.Data());
+  TH3F* hDCAdata = (TH3F*)file->Get(name[1]);
+  TH3F* hDCAdataLS = (TH3F*)file->Get(name[2]);
+
+  hDCAdataLS->SetDirectory(0);
+  hDCAdata->SetDirectory(0);
+  file->Close();
+  hDCAdata->Add(hDCAdataLS,-1);
+  
+  c->Clear();
+  TH1* hrc = (TH1*)hDCArc->ProjectionX("hrc",hDCArc->GetYaxis()->FindBin(0.4),hDCArc->GetYaxis()->FindBin(2.5),3,9);
+  TH1* hdata = (TH1*)hDCAdata->ProjectionX("hdata",hDCAdata->GetYaxis()->FindBin(0.4),hDCAdata->GetYaxis()->FindBin(2.5),3,9);
+ 
+  // hdata->Rebin();
+  hrc->Scale(1./hrc->Integral(hrc->FindBin(0),hrc->FindBin(1.5-1e-6)));
+  hrc->Scale(1./hrc->GetBinWidth(1));
+  hdata->Scale(1./hdata->Integral(hdata->FindBin(0),hdata->FindBin(1.5-1e-6)));
+  hdata->Scale(1./hdata->GetBinWidth(1));
+  hrc->SetMarkerColor(kBlue);
+  hrc->SetLineColor(kBlue);
+  hdata->SetLineColor(kRed);
+  hdata->SetMarkerColor(kRed);
+
+  double sys = calSys(hdata,hrc,0,1,0,1.5);
+  cout <<"pair DCA sys(full pt): (1.5) "<< sys << endl;  
+  
+  double sys = calSys(hdata,hrc,0,1,0,0.8);
+  cout <<"pair DCA sys(full pt): (0.8) "<< sys << endl;  
+
+  hrc->SetFillColorAlpha(kBlue,0.5);
+  hrc->SetFillStyle(1001);
+  hrc->SetMarkerSize(0);
+  hrc->GetXaxis()->SetRangeUser(0,1.5);
+  hrc->GetXaxis()->SetTitle("Pair DCA [cm]");
+  hrc->GetYaxis()->SetTitle("Arb. unit");
+  hrc->DrawCopy();
+  hrc->DrawCopy("same");
+  hrc->DrawCopy("psame");
+  hdata->SetMarkerStyle(24);
+  hdata->SetMarkerSize(1);
+  hdata->DrawCopy("samep");
+  // drawLatex(0.6,0.6,"pair DCA (full p_{T} range)",0.035);
+  drawLatex(0.53,0.81,"Au+Au 54.4 GeV",0.05);
+  drawLatex(0.5,0.75,"Tagged e: 0.4<p_{T}<2.5 GeV/c",0.05);
+  TLegend* leg_tot = new TLegend(0.53,0.57,0.88,0.73);
+  leg_tot->AddEntry(hrc, "MC", "l");
+  leg_tot->AddEntry(hdata, "Data", "pe");
+  leg_tot->Draw();
+  addpdf(pdf,c); 
+  TFile* fPairDca = new TFile(Form("output/fPairDca_%s.root",scale.Data()),"recreate");
+  hrc->Write();
+  hdata->Write();
+  fPairDca->Close();
+
 }
 //----------------------------------------------------------------------
 void drawDecayL(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc)
@@ -847,23 +1011,23 @@ void drawDecayLplot(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc,
    TH1* hrc = (TH1*)hDCArc->ProjectionX("hrc");;
    TH1* hdata = (TH1*)hDCAdata->ProjectionX("hdata");
    
-   hrc = (TH1*)hDCArc->ProjectionX("hrc",hDCArc->GetYaxis()->FindBin(0.2),hDCArc->GetYaxis()->FindBin(2.5));;
-   hdata = (TH1*)hDCAdata->ProjectionX("hdata",hDCAdata->GetYaxis()->FindBin(0.2),hDCAdata->GetYaxis()->FindBin(2.5));
+   hrc = (TH1*)hDCArc->ProjectionX("hrc",hDCArc->GetYaxis()->FindBin(0.4),hDCArc->GetYaxis()->FindBin(2.5));;
+   hdata = (TH1*)hDCAdata->ProjectionX("hdata",hDCAdata->GetYaxis()->FindBin(0.4),hDCAdata->GetYaxis()->FindBin(2.5));
    // hrc->Sumw2();
    // hdata->Sumw2();
   
-   // hrc->Rebin();  
-   hrc->Scale(1./hrc->Integral(hrc->GetXaxis()->FindBin(0+1e-6),hrc->GetXaxis()->FindBin(3-1e-6)));
+   hrc->Scale(1./hrc->Integral(hrc->GetXaxis()->FindBin(0+1e-6),hrc->GetXaxis()->FindBin(2.5-1e-6)));
    hrc->Scale(1./hrc->GetBinWidth(1));
-   hdata->Scale(1./hdata->Integral(hdata->GetXaxis()->FindBin(0+1e-6),hdata->GetXaxis()->FindBin(3-1e-6)));
+   hdata->Scale(1./hdata->Integral(hdata->GetXaxis()->FindBin(0+1e-6),hdata->GetXaxis()->FindBin(2.5-1e-6)));
    hdata->Scale(1./hdata->GetBinWidth(1));
    hrc->SetMarkerColor(kBlue);
    hrc->SetLineColor(kBlue);
    hdata->SetLineColor(kRed);
    hdata->SetMarkerColor(kRed);
 
-   hrc->Rebin(3);
-   hrc->Scale(1./3);
+   /* hrc->Rebin(2);   */
+   // hrc->Rebin(4);
+   /* hrc->Scale(1./2); */
    // hdata->Rebin(4);
    hrc->GetYaxis()->SetTitle("Arb. unit");
    hrc->GetXaxis()->SetTitle("Pair decay length [cm]");
@@ -876,7 +1040,7 @@ void drawDecayLplot(TString head, TPDF* pdf, TCanvas* c,TString real,TString mc,
    addpdf(pdf,c);
    // int const nbins = 7;
    // double ptedge[nbins+1]={0.25,0.3,0.4,0.6,1.0,1.4,1.8,3};
-   TFile* fdecatLforPlots = new TFile(Form("fdecatLforPlots_%s.root",scale.Data()),"recreate");
+   TFile* fdecatLforPlots = new TFile(Form("output/fdecatLforPlots_%s.root",scale.Data()),"recreate");
    hdata->Write();
    hrc->Write();
    fdecatLforPlots->Close();
@@ -893,13 +1057,15 @@ void drawDataQa(TString head,TPDF* pdf,TCanvas* c, TString real, TString mc)
    hPhi_hitcut->SetLineColor(kRed); 
    c->Clear();
    hPhi->GetYaxis()->SetRangeUser(0 ,hPhi->GetMaximum()*1.1 );
+   hPhi->GetYaxis()->SetTitle("Counts");
+   hPhi->GetXaxis()->SetTitle("#phi");
    hPhi->Draw();
    hPhi_hitcut->Draw("same");
    hPhi_allcut->Draw("same");
-   TLegend* leg = new TLegend(0.5,0.7,0.88,0.92);
-   leg->AddEntry(hPhi , "basic cuts","l" );
-   leg->AddEntry(hPhi_hitcut , "first hit <70cm","l" );
-   leg->AddEntry(hPhi_allcut, "rm 1.25<|#phi|<1.95 && first hit <70cm","l" );
+   TLegend* leg = new TLegend(0.4,0.7,0.88,0.92);
+   leg->AddEntry(hPhi , "Basic cuts","l" );
+   leg->AddEntry(hPhi_hitcut , "Basic && First hit <70cm","l" );
+   leg->AddEntry(hPhi_allcut, "Basic && rm 1.25<|#phi|<1.95 && First hit <70cm","l" );
    leg->Draw();
    // drawLatex(0.5,0.6,"Tag e #phi distribution (data)"); 
    addpdf(pdf,c);
@@ -911,77 +1077,77 @@ void drawDataQa(TString head,TPDF* pdf,TCanvas* c, TString real, TString mc)
    addpdf(pdf,c);
    // c->Clear();
    // new tag e eta distribution array
-   THnSparseF* hEtaArray = (THnSparseF*)f->Get("hPartETagEetapt");
-   hEtaArray->GetAxis(3)->SetTitle("partner e #eta");
-   THnSparseF* hEtaArrayLS = (THnSparseF*)f->Get("hPartETagEetapt_LS");
-   cout << "add likesign" << endl;
-   // hEtaArray->Add(hEtaArrayLS,-1);
-   int numOfPlots=4;
-   c->Divide(2,2);
-   // bool finishThispage=false;
-   int const nbins = 8;
-   double ptedge[nbins+1]={0.2,0.3,0.4,0.6,1.0,1.4,1.8,2.2,2.5};
-   for (int i=0;i<nbins;i++)
-   {
-     c->Clear();
-     c->cd();
-     c->Divide(2,2);
-     cout <<"tag e : "<<ptedge[i]<<" "<< hEtaArray->GetAxis(0)->FindBin(ptedge[i])<<" "<< hEtaArray->GetAxis(0)->FindBin(ptedge[i+1])<<endl;
-     hEtaArray->GetAxis(0)->SetRange(hEtaArray->GetAxis(0)->FindBin(ptedge[i]),hEtaArray->GetAxis(0)->FindBin(ptedge[i+1]));
-     hEtaArrayLS->GetAxis(0)->SetRange(hEtaArray->GetAxis(0)->FindBin(ptedge[i]),hEtaArray->GetAxis(0)->FindBin(ptedge[i+1]));
-
-     // hEtaArray->GetAxis(1)->SetRange(hEtaArray->GetAxis(1)->FindBin(0),hEtaArray->GetAxis(1)->FindBin(2.5));
-     // hEtaArrayLS->GetAxis(1)->SetRange(hEtaArray->GetAxis(1)->FindBin(0),hEtaArray->GetAxis(1)->FindBin(2.5));
-     // hEtaArray->GetAxis(2)->SetRange(hEtaArray->GetAxis(2)->FindBin(-1),hEtaArray->GetAxis(2)->FindBin(1));
-     // hEtaArrayLS->GetAxis(2)->SetRange(hEtaArray->GetAxis(2)->FindBin(-1),hEtaArray->GetAxis(2)->FindBin(1));
-     // hEtaArray->GetAxis(3)->SetRange(hEtaArray->GetAxis(3)->FindBin(-1),hEtaArray->GetAxis(3)->FindBin(1));
-     // hEtaArrayLS->GetAxis(3)->SetRange(hEtaArray->GetAxis(3)->FindBin(-1),hEtaArray->GetAxis(3)->FindBin(1));
-      
-     TH2D* heta2d = (TH2D*)hEtaArray->Projection(2,3);
-     TH2D* heta2dls = (TH2D*)hEtaArrayLS->Projection(2,3);
-     heta2d->Add(heta2dls,-1);
-     c->cd(1);
-     gPad->SetLogz();
-     heta2d->DrawCopy("COLZ");
-     gPad->SetRightMargin(0.15);
-     drawLatex(0.2,0.85,Form("Tag e %0.1f<pt<%0.1f", ptedge[i], ptedge[i+1]),0.05);
-     
-     c->cd(2);
-     TH1D* hpartEpt = (TH1D*)hEtaArray->Projection(1);
-     TH1D* hpartEptls = (TH1D*)hEtaArrayLS->Projection(1);
-     hpartEpt->Add(hpartEptls,-1);
-     // hpartEpt->DrawCopy();
-     heta2d->Scale(-1);
-     heta2d->DrawCopy("colz");
-     gPad->SetRightMargin(0.15);
-     // gPad->SetLeftMargin();
-     gPad->SetLogz();
-     delete hpartEpt;
-     delete hpartEptls;
-     // drawLatex(0.4,0.85,Form("Tag e %0.1f<pt<%0.1f, part. e p_{T}", ptedge[i], ptedge[i+1]),0.05);
-     drawLatex(0.2,0.85,"left plot scale with -1",0.05);
-     c->cd(3);
-     TH1F* hTagEeta = (TH1F*)hEtaArray->Projection(2);
-     TH1F* hTagEetals = (TH1F*)hEtaArrayLS->Projection(2);
-     hTagEeta->Add(hTagEetals,-1);
-     hTagEeta->DrawCopy();
-     delete hTagEeta;
-     delete hTagEetals;
-     drawLatex(0.2,0.85,Form("Tag e %0.1f<pt<%0.1f, tag e #eta", ptedge[i], ptedge[i+1]),0.05);
-     c->cd(4);
-     TH1F* hPartEeta = (TH1F*)hEtaArray->Projection(3);
-     TH1F* hPartEetals = (TH1F*)hEtaArrayLS->Projection(3);
-     hPartEeta->Add(hPartEetals,-1);
-     // TH1F* hPartEeta = (TH1F*)heta2d->ProjectionX();
-     hPartEeta->DrawCopy();
-     drawLatex(0.2,0.85,Form("Tag e %0.1f<pt<%0.1f, part. e #eta", ptedge[i], ptedge[i+1]),0.05);
-     delete hPartEeta;
-     delete hPartEetals;
-     addpdf(pdf,c);
-     delete heta2d;
-     delete heta2dls;
-
-   }
+   // THnSparseF* hEtaArray = (THnSparseF*)f->Get("hPartETagEetapt");
+   // hEtaArray->GetAxis(3)->SetTitle("partner e #eta");
+   // THnSparseF* hEtaArrayLS = (THnSparseF*)f->Get("hPartETagEetapt_LS");
+   // cout << "add likesign" << endl;
+   // // hEtaArray->Add(hEtaArrayLS,-1);
+   // int numOfPlots=4;
+   // c->Divide(2,2);
+   // // bool finishThispage=false;
+   // int const nbins = 8;
+   // double ptedge[nbins+1]={0.2,0.3,0.4,0.6,1.0,1.4,1.8,2.2,2.5};
+   // for (int i=0;i<nbins;i++)
+   // {
+   //   c->Clear();
+   //   c->cd();
+   //   c->Divide(2,2);
+   //   cout <<"tag e : "<<ptedge[i]<<" "<< hEtaArray->GetAxis(0)->FindBin(ptedge[i])<<" "<< hEtaArray->GetAxis(0)->FindBin(ptedge[i+1])<<endl;
+   //   hEtaArray->GetAxis(0)->SetRange(hEtaArray->GetAxis(0)->FindBin(ptedge[i]),hEtaArray->GetAxis(0)->FindBin(ptedge[i+1]));
+   //   hEtaArrayLS->GetAxis(0)->SetRange(hEtaArray->GetAxis(0)->FindBin(ptedge[i]),hEtaArray->GetAxis(0)->FindBin(ptedge[i+1]));
+   //
+   //   // hEtaArray->GetAxis(1)->SetRange(hEtaArray->GetAxis(1)->FindBin(0),hEtaArray->GetAxis(1)->FindBin(2.5));
+   //   // hEtaArrayLS->GetAxis(1)->SetRange(hEtaArray->GetAxis(1)->FindBin(0),hEtaArray->GetAxis(1)->FindBin(2.5));
+   //   // hEtaArray->GetAxis(2)->SetRange(hEtaArray->GetAxis(2)->FindBin(-1),hEtaArray->GetAxis(2)->FindBin(1));
+   //   // hEtaArrayLS->GetAxis(2)->SetRange(hEtaArray->GetAxis(2)->FindBin(-1),hEtaArray->GetAxis(2)->FindBin(1));
+   //   // hEtaArray->GetAxis(3)->SetRange(hEtaArray->GetAxis(3)->FindBin(-1),hEtaArray->GetAxis(3)->FindBin(1));
+   //   // hEtaArrayLS->GetAxis(3)->SetRange(hEtaArray->GetAxis(3)->FindBin(-1),hEtaArray->GetAxis(3)->FindBin(1));
+   //    
+   //   TH2D* heta2d = (TH2D*)hEtaArray->Projection(2,3);
+   //   TH2D* heta2dls = (TH2D*)hEtaArrayLS->Projection(2,3);
+   //   heta2d->Add(heta2dls,-1);
+   //   c->cd(1);
+   //   gPad->SetLogz();
+   //   heta2d->DrawCopy("COLZ");
+   //   gPad->SetRightMargin(0.15);
+   //   drawLatex(0.2,0.85,Form("Tag e %0.1f<pt<%0.1f", ptedge[i], ptedge[i+1]),0.05);
+   //   
+   //   c->cd(2);
+   //   TH1D* hpartEpt = (TH1D*)hEtaArray->Projection(1);
+   //   TH1D* hpartEptls = (TH1D*)hEtaArrayLS->Projection(1);
+   //   hpartEpt->Add(hpartEptls,-1);
+   //   // hpartEpt->DrawCopy();
+   //   heta2d->Scale(-1);
+   //   heta2d->DrawCopy("colz");
+   //   gPad->SetRightMargin(0.15);
+   //   // gPad->SetLeftMargin();
+   //   gPad->SetLogz();
+   //   delete hpartEpt;
+   //   delete hpartEptls;
+   //   // drawLatex(0.4,0.85,Form("Tag e %0.1f<pt<%0.1f, part. e p_{T}", ptedge[i], ptedge[i+1]),0.05);
+   //   drawLatex(0.2,0.85,"left plot scale with -1",0.05);
+   //   c->cd(3);
+   //   TH1F* hTagEeta = (TH1F*)hEtaArray->Projection(2);
+   //   TH1F* hTagEetals = (TH1F*)hEtaArrayLS->Projection(2);
+   //   hTagEeta->Add(hTagEetals,-1);
+   //   hTagEeta->DrawCopy();
+   //   delete hTagEeta;
+   //   delete hTagEetals;
+   //   drawLatex(0.2,0.85,Form("Tag e %0.1f<pt<%0.1f, tag e #eta", ptedge[i], ptedge[i+1]),0.05);
+   //   c->cd(4);
+   //   TH1F* hPartEeta = (TH1F*)hEtaArray->Projection(3);
+   //   TH1F* hPartEetals = (TH1F*)hEtaArrayLS->Projection(3);
+   //   hPartEeta->Add(hPartEetals,-1);
+   //   // TH1F* hPartEeta = (TH1F*)heta2d->ProjectionX();
+   //   hPartEeta->DrawCopy();
+   //   drawLatex(0.2,0.85,Form("Tag e %0.1f<pt<%0.1f, part. e #eta", ptedge[i], ptedge[i+1]),0.05);
+   //   delete hPartEeta;
+   //   delete hPartEetals;
+   //   addpdf(pdf,c);
+   //   delete heta2d;
+   //   delete heta2dls;
+   //
+   // }
    f->Close();
    c->Clear();
 }
@@ -1014,22 +1180,27 @@ void drawInvMass(TString head,TPDF* pdf,TCanvas* c, TString real, TString mc)
   
   // int const nbins = 7;
   // double ptedge[nbins+1]={0.2,0.3,0.4,0.6,1.0,1.4,1.8,3.2};
-  int const nbins = 7;
-  double ptedge[nbins+1]={0.25,0.4,0.65,0.85,1,1.4,1.8,3.2};
+  // int const nbins = 7;
+  // double ptedge[nbins+1]={0.25,0.4,0.65,0.85,1,1.4,1.8,3.2};
+  int const nbins = 15;
+  double ptedge[nbins+1]={0.25,0.3,0.4,0.45,0.5,0.55,0.6,0.65,0.85,0.9,1,1.1,1.2,1.6,2.0,2.8};
 
   double x[nbins],y[nbins];
   for (int i=0;i<nbins;i++)
   {
     c->cd(i%numOfPlots+1);
     TH1* hrc_x = (TH1*)hDCArc->ProjectionX("hrc_X", hDCArc->GetYaxis()->FindBin(ptedge[i]),  hDCArc->GetYaxis()->FindBin(ptedge[i+1]), 1, hDCArc->GetNbinsZ());
-    TH1* hdata_x = (TH1*)hDCAdata->ProjectionX("hdata_X",hDCAdata->GetYaxis()->FindBin(ptedge[i]), hDCAdata->GetYaxis()->FindBin(ptedge[i]),1,hDCAdata->GetNbinsZ());
+    TH1* hdata_x = (TH1*)hDCAdata->ProjectionX("hdata_X",hDCAdata->GetYaxis()->FindBin(ptedge[i]), hDCAdata->GetYaxis()->FindBin(ptedge[i+1]),1,hDCAdata->GetNbinsZ());
     NormHist(hrc_x,kBlue);
     NormHist(hdata_x,kRed);
     hrc_x->GetXaxis()->SetRangeUser(0,0.2);
+    hrc_x->GetYaxis()->SetTitle("Arb. unit");
+    hrc_x->GetXaxis()->SetTitle("M_{ee} [GeV/c^{2}]");
     hrc_x->DrawCopy();
     hdata_x->DrawCopy("same");
     // drawLatex(0.2,0.6,Form("%s Eta", head.Data()));
-    drawLatex(0.2,0.85,Form("%s, Tag e %0.1f<pt<%0.1f", head.Data(), ptedge[i], ptedge[i+1]),0.05);
+    drawLatex(0.2,0.85,Form("%s, Tag e %0.2f<p_{T}<%0.2f GeV/c", head.Data(), ptedge[i], ptedge[i+1]),0.05);
+    /* drawLatex(0.2, 0.78, Form("Eff %0.2f", hrc_x->Integral(0,hrc_x->GetXaxis()->FindBin(0.1))/hrc_x->Integral()), 0.05); */
     // addpdf(pdf);
     if ( i==(nbins-1) ) finishThispage=true;
     else if ( i%numOfPlots==(numOfPlots-1) )  finishThispage = true;
@@ -1059,6 +1230,11 @@ void drawInvMass(TString head,TPDF* pdf,TCanvas* c, TString real, TString mc)
     drawLatex(0.53,0.88,"Au+Au 54.4 GeV",0.05);
     drawLatex(0.5,0.82,Form("Tagged e: %0.1f<p_{T}<%0.1f GeV/c", 0.4, 2.5),0.05);
 
+    TFile* fInvMass = new TFile("output/fInvMass.root","recreate");
+    hrc_x->Write();
+    hdata_x->Write();
+    fInvMass->Close();
+    
     TLegend* leg_tot = new TLegend(0.53,0.65,0.88,0.79);
     leg_tot->AddEntry( hrc_x, "MC", "l");
     leg_tot->AddEntry(hdata_x,"Data","pe");

@@ -448,6 +448,7 @@ void StMiniTreeAnalysis::bookHists()
 //------------------------------------------------------------
 void StMiniTreeAnalysis::initHists(int nRunNum)
 {
+  int ptbins=200;
   hcent = new TH1F("hcent","hcent",9,-0.5,8.5);
   hcentwg = new TH1F("hcentwg","hcentwg",9,-0.5,8.5);
   float PI = TMath::Pi();
@@ -458,20 +459,20 @@ void StMiniTreeAnalysis::initHists(int nRunNum)
   hEventPlaneCent_P_re = new TH2F("hEventPlaneCent_P_Re","hEventPlaneCent recenter;Cent;Psi",9,-0.5,8.5,360,0,PI);
   hEventPlaneCent_P_sh = new TH2F("hEventPlaneCent_P_Sh","hEventPlaneCent recenter;Cent;Psi",9,-0.5,8.5,360,0,PI);
   EPconsRes = new TProfile("EPRes","Event Plane resolution;Cent;Res",9,-0.5,8.5);
-  hIncEv2vsPtvsCent = new TH3F("hIncEv2vsPtvsCent","hIncEv2vsPtvsCent;#phi-#Psi_{2};p_{T} [GeV/c];Centrality",360,0,PI,80,0,4,9,-0.5,8.5);
-  hIncEPtvsCent = new TH2F("hIncEPtvsCent","hIncEPtvsCent;p_{T} [GeV/c];Centrality",80,0,4,9,-0.5,8.5);
-  pIncEv2 = new TProfile2D("pIncEv2","pIncEv2;p_{T};Centrality",80,0,4,9,-0.5,8.5);
-  pIncEv2_hitcut = new TProfile2D("pIncEv2_hitcut","pIncEv2_hitcut;p_{T};Centrality",80,0,4,9,-0.5,8.5);
-  hIncEv2vsPtvsCent_hitcut = new TH3F("hIncEv2vsPtvsCent_hitcut","hIncEv2vsPtvsCent;#phi-#Psi_{2};p_{T} [GeV/c];Centrality",360,0,PI,80,0,4,9,-0.5,8.5);
-  hIncEPtvsCent_hitcut = new TH2F("hIncEPtvsCent_hitcut","hIncEPtvsCent;p_{T} [GeV/c];Centrality",80,0,4,9,-0.5,8.5);
-  hPhEv2vsPtvsCent = new TH3F("hPhEv2vsPtvsCent","hPhEv2vsPtvsCent;#phi-#Psi_{2};p_{T} [GeV/c];Centrality",360,0,PI,80,0,4,9,-0.5,8.5);
-  hPhEv2vsPtvsCentLS = new TH3F("hPhEv2vsPtvsCentLS","hPhEv2vsPtvsCentLS;#phi-#Psi_{2};p_{T} [GeV/c];Centrality",360,0,PI,80,0,4,9,-0.5,8.5);
-  pTagEv2 = new TProfile2D("pTagEv2","pTagEv2;p_{T};Centrality",80,0,4,9,-0.5,8.5);
-  pTagEv2_LS = new TProfile2D("pTagEv2_LS","pTagEv2_LS;p_{T};Centrality",80,0,4,9,-0.5,8.5);
-  hphoto = new TH3F("hphoto","Mee;Mee;Tag e p_{T};cent",300,0,0.3,100,0,5,9,-0.5,8.5);
-  hphoto_LS = new TH3F("hphoto_LS","Mee like sign vs e pt vs cent;Mee;Tag e p_{T};cent",300,0,0.3,100,0,5,9,-0.5,8.5);
-  hphoto_hitcut = new TH3F("hphoto_hitcut","Mee;Mee;Tag e p_{T};cent",300,0,0.3,100,0,5,9,-0.5,8.5);
-  hphoto_LS_hitcut = new TH3F("hphoto_LS_hitcut","Mee like sign vs e pt vs cent;Mee;Tag e p_{T};cent",300,0,0.3,100,0,5,9,-0.5,8.5);
+  hIncEv2vsPtvsCent = new TH3F("hIncEv2vsPtvsCent","hIncEv2vsPtvsCent;#phi-#Psi_{2};p_{T} [GeV/c];Centrality",360,0,PI,ptbins,0,4,9,-0.5,8.5);
+  hIncEPtvsCent = new TH2F("hIncEPtvsCent","hIncEPtvsCent;p_{T} [GeV/c];Centrality",ptbins,0,4,9,-0.5,8.5);
+  pIncEv2 = new TProfile2D("pIncEv2","pIncEv2;p_{T};Centrality",ptbins,0,4,9,-0.5,8.5);
+  pIncEv2_hitcut = new TProfile2D("pIncEv2_hitcut","pIncEv2_hitcut;p_{T};Centrality",ptbins,0,4,9,-0.5,8.5);
+  hIncEv2vsPtvsCent_hitcut = new TH3F("hIncEv2vsPtvsCent_hitcut","hIncEv2vsPtvsCent;#phi-#Psi_{2};p_{T} [GeV/c];Centrality",360,0,PI,ptbins,0,4,9,-0.5,8.5);
+  hIncEPtvsCent_hitcut = new TH2F("hIncEPtvsCent_hitcut","hIncEPtvsCent;p_{T} [GeV/c];Centrality",ptbins,0,4,9,-0.5,8.5);
+  hPhEv2vsPtvsCent = new TH3F("hPhEv2vsPtvsCent","hPhEv2vsPtvsCent;#phi-#Psi_{2};p_{T} [GeV/c];Centrality",360,0,PI,ptbins,0,4,9,-0.5,8.5);
+  hPhEv2vsPtvsCentLS = new TH3F("hPhEv2vsPtvsCentLS","hPhEv2vsPtvsCentLS;#phi-#Psi_{2};p_{T} [GeV/c];Centrality",360,0,PI,ptbins,0,4,9,-0.5,8.5);
+  pTagEv2 = new TProfile2D("pTagEv2","pTagEv2;p_{T};Centrality",ptbins,0,4,9,-0.5,8.5);
+  pTagEv2_LS = new TProfile2D("pTagEv2_LS","pTagEv2_LS;p_{T};Centrality",ptbins,0,4,9,-0.5,8.5);
+  hphoto = new TH3F("hphoto","Mee;Mee;Tag e p_{T};cent",300,0,0.3,ptbins,0,4,9,-0.5,8.5);
+  hphoto_LS = new TH3F("hphoto_LS","Mee like sign vs e pt vs cent;Mee;Tag e p_{T};cent",300,0,0.3,ptbins,0,4,9,-0.5,8.5);
+  hphoto_hitcut = new TH3F("hphoto_hitcut","Mee;Mee;Tag e p_{T};cent",300,0,0.3,ptbins,0,4,9,-0.5,8.5);
+  hphoto_LS_hitcut = new TH3F("hphoto_LS_hitcut","Mee like sign vs e pt vs cent;Mee;Tag e p_{T};cent",300,0,0.3,ptbins,0,4,9,-0.5,8.5);
 
   hphotoVsPt_LS = new TH3F("hphotoVsPt_LS","Mee like sign vs photon pt vs cent;Mee;photon p_{T};cent",120,0,0.3,80,0,8,9,-0.5,8.5);
   hphotoVsPt = new TH3F("hphotoVsPt","Mee like sign vs photon pt vs cent;Mee;photon p_{T};cent",120,0,0.3,80,0,8,9,-0.5,8.5);

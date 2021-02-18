@@ -16,18 +16,36 @@ void plotNPEv2()
   hHFv2_psys->SetDirectory(0);
   TH1F* hs2b_psys = (TH1F*)fpsys->Get("hratioCor");
   hs2b_psys->SetDirectory(0);
+  TH1F* heratiosys = (TH1F*)fpsys->Get("heratio");
+  heratiosys->SetDirectory(0);
   fpsys->Close();
+
+  TFile* feffsys = new TFile("out_syseff.root");
+  TH1F* hHFv2_effsys =  (TH1F*)feffsys->Get("hHFv2stat");
+  hHFv2_effsys->SetDirectory(0);
+  TH1F* hs2b_effsys = (TH1F*)feffsys->Get("hratioCor");
+  hs2b_effsys->SetDirectory(0);
+  TH1F* heratioeffsys = (TH1F*)feffsys->Get("heratio");
+  heratioeffsys->SetDirectory(0);
+  feffsys->Close();
+
 
   TFile* file = new TFile("out.root");
   TH1F* HFv2stat = (TH1F*)file->Get("hHFv2stat");
   TH1F* HFv2sys = (TH1F*)file->Get("hHFv2sys");
   TH1F* hs2b = (TH1F*)file->Get("hratioCor");
   TH1F* hs2berr = (TH1F*)file->Get("hS2Berror");
-   
+  TH1F* hs2bstaterr = (TH1F*)file->Get("hS2Bstaterror");
+  TH1F* heratio = (TH1F*)file->Get("heratio");
+  heratio->SetDirectory(0);  
+
   int  nbins = HFv2stat->GetNbinsX();
-  double x[50],xwidth[50] , y[50], syserr[50],staterr[50] ,tmpx,tmpy,tmperr,tmpstat,tmppsys;
-  double  s2b[50], s2berr[50],s2bstaterr[50] ,tmpx,tmps2b,tmps2berr,tmps2bstat, tmps2bpsys;
+  double x[50],xwidth[50] , y[50], syserr[50],staterr[50] ,tmpx,tmpy,tmperr,tmpstat,tmppsys,tmpeffsys;
+  double  s2b[50], s2berr[50],s2bstaterr[50] ,tmpx,tmps2b,tmps2berr,tmps2bstat, tmps2bstateff, tmps2bpsys, tmps2beffsys,eratio[50],eratioerr[50];
   int npoints=0;
+  
+  
+  cout <<"pT"<< " "<<"v2"<<" "<<"stat"<<" "<<"sys"<< endl;
   for (int ib=0;ib<nbins;ib++)
   {
     tmpy = HFv2stat->GetBinContent(ib+1);
@@ -36,15 +54,19 @@ void plotNPEv2()
     tmperr = HFv2sys->GetBinError(ib+1);
     tmps2b = hs2b->GetBinContent(ib+1);
     tmps2bstat = hs2b->GetBinError(ib+1);
+    tmps2bstateff = hs2bstaterr->GetBinContent(ib+1);
+    tmps2bstat = sqrt(tmps2bstat*tmps2bstat+tmps2bstateff*tmps2bstateff);
     tmps2berr = hs2berr->GetBinContent(ib+1);
     tmps2bpsys = hs2b_psys->GetBinContent(ib+1)-hs2b->GetBinContent(ib+1);
     tmppsys = hHFv2_psys->GetBinContent(ib+1)-HFv2stat->GetBinContent(ib+1);
+    tmps2beffsys = hs2b_effsys->GetBinContent(ib+1)-hs2b->GetBinContent(ib+1);
+    tmpeffsys = hHFv2_effsys->GetBinContent(ib+1)-HFv2stat->GetBinContent(ib+1);
 
-    tmperr = sqrt(tmperr*tmperr+tmppsys*tmppsys);
-    tmps2berr = sqrt(tmps2bpsys*tmps2bpsys+tmps2berr*tmps2berr);
+    tmperr = sqrt(tmperr*tmperr+tmppsys*tmppsys+tmpeffsys*tmpeffsys);
+    tmps2berr = sqrt(tmps2bpsys*tmps2bpsys+tmps2berr*tmps2berr+tmps2beffsys*tmps2beffsys);
 
     // if (tmpy<-0.05 || tmpx<0.35|| (tmpx<1.15&&tmpx>0.85) || tmperr>0.1 ) 
-    if (tmpy<-0.05 || (tmpx<0.65&&tmpx>0.4)|| (tmpx<1.2&&tmpx>0.7) || tmperr>0.1 ) 
+    if (tmpy<-0.05 || (tmpx<0.65&&tmpx>0.4)|| (tmpx<1.2&&tmpx>0.7) || tmperr>0.1 || tmpx>3) 
     { continue; }
     else 
     { 
@@ -57,7 +79,9 @@ void plotNPEv2()
       s2b[npoints] = tmps2b; 
       s2berr[npoints] = tmps2berr; 
       s2bstaterr[npoints] = tmps2bstat; 
-
+      eratio[npoints] = heratio->GetBinContent(ib+1);
+      eratioerr[npoints] = heratiosys->GetBinContent(ib+1);
+      cout <<tmpx<< " "<<tmpy<<" "<<tmpstat<<" "<<tmperr << endl;
       npoints++; 
     }
   }
@@ -191,12 +215,18 @@ void plotNPEv2()
    c1->SaveAs("fig/NPEv2_200_62_54_model.eps");
    c1->SaveAs("fig/NPEv2_200_62_54_model.png");
 
-   
-   TFile* gplots = new TFile("finalDatapoints.root","recreate");
+   TGraphErrors* gpurity = new TGraphErrors(npoints,x, eratio, xwidth,0 );
+   gpurity->SetName("gpurity");
+   TGraphErrors* gpuritysys = new TGraphErrors(npoints,x, eratioerr, xwidth,0 );
+   gpuritysys->SetName("gpuritysys");
+
+   TFile* gplots = new TFile("final/finalDatapoints.root","recreate");
    g54S2B->Write();
    g54S2Bsys->Write();
    gSTAR54->Write();
    gSTAR54sys->Write();
+   gpurity->Write();
+   gpuritysys->Write();
 }
 
 

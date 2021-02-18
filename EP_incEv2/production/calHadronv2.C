@@ -1,4 +1,5 @@
 #include "Energy.h"
+#include "sPhenixStyle.h"
 void addpdf(TPDF* pdf)
 { 
   pdf->On();
@@ -28,7 +29,8 @@ TGraph* divideFit(TGraphErrors* g1, TF1* fit,TString s)
 }
 void calHadronv2()
 {
-  TFile* file = new TFile("incEv2.root");
+  SetsPhenixStyle();
+  TFile* file = new TFile("eta1/incEv2.root");
   // TFile* file = new TFile("getshift.root");
   // TFile* file = new TFile("incEv2_0.root");
   TCanvas* c1 = new TCanvas("c1","c1");
@@ -36,7 +38,12 @@ void calHadronv2()
   TPDF* pdf = new TPDF("plots.pdf"); 
   pdf->Off();
   //resolution
+  TFile* f27res = new TFile("Res27GeV.root");
+  TH1F* h27res = (TH1F*)f27res->Get("rescheck")->Clone("h27res");
+  h27res->SetDirectory(0);
+  f27res->Close();
   TProfile* prfres= (TProfile*)file->Get("EPRes"); 
+  
   double res_x[10] = {0,5,10,20,30,40,50,60,70,80};
   double res_xbincenter[9];
   TH1F* rescheck = new TH1F("rescheck","res sqrt(deltasub)",9,res_x);
@@ -55,6 +62,8 @@ void calHadronv2()
   }
   // resolution->Draw();
   c1->cd();
+  TGraphErrors* gShWhadron = new TGraphErrors(31 ,pt_54,v2_54,0,v2err_54);
+
   TGraphErrors* gShWres = new TGraphErrors(9 ,res_xbincenter ,val_54GeV,0,err_54GeV );
   TGraphErrors* gShWres39 = new TGraphErrors(9 ,res_xbincenter ,val_39GeV,0,err_39GeV );
   TGraphErrors* gShWres62 = new TGraphErrors(9 ,res_xbincenter ,val_62GeV,0,err_62GeV );
@@ -66,10 +75,24 @@ void calHadronv2()
   gShWres39->SetMarkerColor(kRed);
   rescheck->GetYaxis()->SetRangeUser(0,0.8);
   rescheck->Draw("p");
-  gShWres->Draw("psame");
+  rescheck->GetXaxis()->SetTitle("Centrality(%)");
+  rescheck->GetYaxis()->SetTitle("Event plane resolution");
+  /* gShWres->Draw("psame"); */
   gShWres62->Draw("psame");
   gShWres39->Draw("psame");
+  /* h27res->Draw("same"); */
+
+  TLegend* leg = new TLegend(0.6,0.65,0.88,0.88);
+  leg->SetTextSize(0.05);
+  leg->SetHeader("       Au+Au");
+  leg->AddEntry(gShWres39,"39 GeV","p");
+  leg->AddEntry(rescheck,"54 GeV","p");
+  leg->AddEntry(gShWres62,"62.4 GeV","p");
+  leg->Draw();
+
   gPad->SaveAs("res.png");
+  return;
+
   // addpdf(pdf); 
   c1->Close();
   c->cd();
@@ -83,16 +106,17 @@ void calHadronv2()
   // TProfile2D* pHad2D = (TProfile2D*)file->Get("pIncEv2");
   // for ()
   // {
-  int centL=3,centH=6;  //start at 1
-  // int centL=3,centH=3;  //start at 1
-  // TProfile* pHadv2 = (TProfile*)pHad2D->ProfileX("pHadv2",centL,centH);
+  /* int centL=3,centH=6;  //start at 1 */
+  /* int centL=3,centH=9;  //start at 1 */
+  int centL=3,centH=9;  //start at 1
+  /* TProfile* pHadv2 = (TProfile*)pHad2D->ProfileX("pHadv2",centL,centH); */
   TProfile* pHadv2cent[9];
   for (int ic =centL;ic<=centH;ic++){
     pHadv2cent[ic-1] = (TProfile*)pHad2D->ProfileX(Form("pHadv2_%d",ic),ic,ic);
     pHadv2cent[ic-1]->Scale(1./resolution->GetBinContent(ic));
   }
 
-  // TH1F* pHadv2 = (TH1F*)pHadv2cent[centH]->ProjectionX("hHadv2"); 
+  /* // TH1F* pHadv2 = (TH1F*)pHadv2cent[centH]->ProjectionX("hHadv2");  */
   TProfile* pHadv2;
   for (int ic=centL;ic<=centH;ic++)
   {
@@ -106,22 +130,26 @@ void calHadronv2()
      pHadv2->Add(pHadv2cent[ic-1],1);
     }
   }
-  // double resMB=0, totmult=0;
-  // double refmult[9]={11,22.8,41.7,70.2,112,170,249,329,402};
-  // for (int icent=centL;icent<=centH;icent++) {
-  //   resMB+= resolution->GetBinContent(icent)*refmult[centH];
-  //   totmult+=refmult[centL];
-  // }
-  // resMB/=(1.0*totmult);
-  // prfres->Rebin(9);
-  // double resMB = prfres->GetBinContent(1);
-  // resMB = sqrt(resMB);
-  // cout<<resMB<<endl;
-  // pHadv2->Scale(1./(resMB));
+  /*  */
+  /* double resMB=0, totmult=0; */
+  /* double refmult[9]={11,22.8,41.7,70.2,112,170,249,329,402}; */
+  /* for (int icent=centL;icent<=centH;icent++) { */
+  /*   #<{(| resMB+= resolution->GetBinContent(icent)*refmult[centH]; |)}># */
+  /*   resMB+= 1./resolution->GetBinContent(icent)*prfres->GetBinEntries(icent); */
+  /*   #<{(| totmult+=refmult[centL]; |)}># */
+  /*   totmult+=prfres->GetBinEntries(icent); */
+  /* } */
+  /* resMB/=(1.0*totmult); */
+  /* prfres->Rebin(9); */
+  /* double resMB = prfres->GetBinContent(1); */
+  /* resMB = sqrt(resMB); */
+  /* cout<<resMB<<endl; */
+  /* pHadv2->Scale((resMB)); */
   pHadv2->SetMarkerStyle(20);
   pHadv2->SetMarkerColor(kBlue);
   c->cd(1);
   pHadv2->Draw("psame");
+  /* gShWhadron->Draw("psame"); */
   c->cd(2);
   TH1F* hdraw = new TH1F("hdraw","hdraw",10,0,5);
   hdraw->GetYaxis()->SetRangeUser(0.9,1.1);
@@ -192,6 +220,12 @@ void calHadronv2()
   l->Draw("same");
   // TLegend* l = new TLegend(0.6,0.6,0.8,0.8);
   // l->AddEntry();
+  pHadv2->Rebin(pHadv2->GetNbinsX());
+  pHadv2->Draw();
+  cout << pHadv2->GetBinContent(1)<<" "<<pHadv2->GetBinError(1)<<endl;
+  cout << (pHadv2->GetBinEntries(1))/4.7*1e-8<<endl;
+  /* cout << (totmult)/4.7*1e-8<<endl; */
+
 }
 
 

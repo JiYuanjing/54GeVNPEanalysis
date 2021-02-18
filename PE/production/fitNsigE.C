@@ -73,8 +73,8 @@ void projectionAndFit(TH2F* h, float lowpt, float highpt, float &mean,float &sig
   mean = fit->GetParameter(1); 
   sigma = fit->GetParameter(2); 
   TLatex lat;
-  lat.SetTextSize(0.035);
-  lat.DrawLatexNDC(0.2,0.85,Form("%.2f<p_{T}<%.2f GeV %s",lowpt,highpt,p.c_str()));
+  lat.SetTextSize(0.04);
+  lat.DrawLatexNDC(0.45,0.88,Form("%.2f<p_{T}<%.2f GeV %s",lowpt,highpt,p.c_str()));
   if (p.find("pi")!=std::string::npos) {
     float total = hx->Integral("width");
     hx->Scale(1./total); 
@@ -114,7 +114,7 @@ void projAndFitForMg(TH2F* h, float lowpt, float highpt, float &mean,float &sigm
   sigma = fit->GetParameter(2); 
   TLatex lat;
   lat.SetTextSize(0.035);
-  lat.DrawLatexNDC(0.2,0.85,Form("%.2f<p_{T}<%.2f GeV %s",lowpt,highpt,p.c_str()));
+  lat.DrawLatexNDC(0.45,0.88,Form("%.2f<p_{T}<%.2f GeV %s",lowpt,highpt,p.c_str()));
   // addpdf(pdf);
 }
 void funtofsamp(double* x,double *p )
@@ -279,19 +279,19 @@ void fitNsigE(int centL=2, int centH=8){
     if (centH==8 && centL==6)
     {
       //e
-      if (pt[j]<0.6&&pt[j]>0.5) {
-        constL[0]=0.95*exp( (-1.836)*pt[j]*pt[j]+(-3.81)*pt[j]+17);
-        // constL[0]=0.95*exp( (-2.61)*pt[j]+15);
-        // constH[0]=1.05*exp( (-2.61)*pt[j]+15);
-        constH[0]=1.05*exp( (-1.836)*pt[j]*pt[j]+(-3.81)*pt[j]+17);
-      }
+      // if (pt[j]<0.6&&pt[j]>0.5) {
+      //   constL[0]=0.95*exp( (-1.836)*pt[j]*pt[j]+(-3.81)*pt[j]+17);
+      //   // constL[0]=0.95*exp( (-2.61)*pt[j]+15);
+      //   // constH[0]=1.05*exp( (-2.61)*pt[j]+15);
+      //   constH[0]=1.05*exp( (-1.836)*pt[j]*pt[j]+(-3.81)*pt[j]+17);
+      // }
       if (pt[j]<=1&&pt[j]>0.8){
         // constL[0]=0.9*exp((0.977)*pt[j]*pt[j]+(-7.21)*pt[j]+18);
         constL[0]=0.95*exp((0.)*pt[j]*pt[j]+(-2.68)*pt[j]+15);
         // constH[0]=1.2*exp((0.977)*pt[j]*pt[j]+(-7.21)*pt[j]+18);
         constH[0]=1.05*exp((0.)*pt[j]*pt[j]+(-2.68)*pt[j]+15);
       }
-      if (pt[j]<1.55&&pt[j]>1){
+      if (pt[j]<1.45&&pt[j]>1){
         constL[0]=0.95*exp(-2.61*pt[j]+15);
         constH[0]=1.1*exp(-2.61*pt[j]+15);
       }
@@ -311,10 +311,10 @@ void fitNsigE(int centL=2, int centH=8){
       //   constH[2]=1.2*exp(-2.75*pt[j]+20);
       // }
       //pi
-      if (pt[j]>1&&pt[j]<1.15 || pt[j]<1.8 && pt[j]>1.6){
-        constL[2]=exp(-2.73*pt[j]+20.8);
-        constH[2]=exp(-2.73*pt[j]+21.5);
-      }
+      // if (pt[j]>1&&pt[j]<1.15 || pt[j]<1.8 && pt[j]>1.6){
+      //   constL[2]=exp(-2.73*pt[j]+20.8);
+      //   constH[2]=exp(-2.73*pt[j]+21.5);
+      // }
       // 
       // if (pt[j]>2.2 && pt[j]<2.4){
       //   constL[2]=exp(-2.45*pt[j]+20.9);
@@ -482,18 +482,18 @@ void fitNsigE(int centL=2, int centH=8){
         constH[0]=exp(-5.12*pt[j]+17.9);
 
       }
-      if (pt[j]<=0.99&&pt[j]>0.7){
-        constL[0]=exp(-3.5*pt[j]+16);
-        constH[0]=exp(-3.5*pt[j]+16.6);
-      }
-      if (pt[j]<1.4&&pt[j]>0.99){
-        constL[0]=exp(-3.45*pt[j]+16.6);
-        constH[0]=exp(-3.45*pt[j]+16.65);
-      }
-      if (pt[j]>2.6){
-        constL[0]=exp(-2.71*pt[j]+16.7);
-        constH[0]=exp(-2.71*pt[j]+16.8);
-      }
+      // if (pt[j]<=0.99&&pt[j]>0.7){
+      //   constL[0]=exp(-3.5*pt[j]+16);
+      //   constH[0]=exp(-3.5*pt[j]+16.6);
+      // }
+      // if (pt[j]<1.4&&pt[j]>0.99){
+      //   constL[0]=exp(-3.45*pt[j]+16.6);
+      //   constH[0]=exp(-3.45*pt[j]+16.65);
+      // }
+      // if (pt[j]>2.6){
+      //   constL[0]=exp(-2.71*pt[j]+16.7);
+      //   constH[0]=exp(-2.71*pt[j]+16.8);
+      // }
       // //p
       // if (pt[j]>1.7){
       //   constL[1]=0.3*exp(-1.72*pt[j]+16.1);
@@ -529,10 +529,10 @@ void fitNsigE(int centL=2, int centH=8){
       //   constH[2]=5e7;
       // }
       // // //K
-      if (pt[j]<0.6 && pt[j]>0.44){
-        constL[3]=0.8*exp(10.4*pt[j]+7.48);
-        constH[3]=1.1*exp(10.4*pt[j]+7.48);
-      }
+      // if (pt[j]<0.6 && pt[j]>0.44){
+      //   constL[3]=0.8*exp(10.4*pt[j]+7.48);
+      //   constH[3]=1.1*exp(10.4*pt[j]+7.48);
+      // }
       // if (pt[j]>0.4&&pt[j]<0.6){
       //   constL[3]=0.95*exp(10.4*pt[j]+6);
       //   constH[3]=1.1*exp(10.4*pt[j]+6);
@@ -546,7 +546,7 @@ void fitNsigE(int centL=2, int centH=8){
         constL[4]=exp(6.35+pt[j]*9.54);
         constH[4]=exp(6.42+pt[j]*9.54);
       }
-          }
+    }
     for (int i=0;i<5;i++){
       // if (i!=2) ftot->FixParameter(i*3+1, mean[i]);
       ftot->FixParameter(i*3+1, mean[i]);
@@ -560,8 +560,8 @@ void fitNsigE(int centL=2, int centH=8){
     }
     // ftot->FixParameter(7,j); //for pion
     //e
-    htotsamp->GetXaxis()->SetRangeUser(-2,2); 
-    htotsamp->Fit(fpartical[0],"RN");
+    htotsamp->GetXaxis()->SetRangeUser(0,2); 
+    htotsamp->Fit(fpartical[0],"RNL");
     double e_const  = fpartical[0]->GetParameter(0);
     ftot->SetParameter(0,e_const);
     htotsamp->GetXaxis()->SetRangeUser(-10,20); 
@@ -573,7 +573,7 @@ void fitNsigE(int centL=2, int centH=8){
     // htotsamp->GetXaxis()->SetRangeUser(-10,20); 
     //pi
     htotsamp->GetXaxis()->SetRangeUser(-10,-2); 
-    htotsamp->Fit(fpartical[2],"RN");
+    htotsamp->Fit(fpartical[2],"RNL");
     double pi_const  = fpartical[2]->GetParameter(0);
     ftot->SetParameter(6,pi_const);
     htotsamp->GetXaxis()->SetRangeUser(-10,20); 
@@ -601,7 +601,7 @@ void fitNsigE(int centL=2, int centH=8){
     htotsamp->Fit(ftot,"RB");
     ftot->GetParameters(par);
 
-    TLegend* leg = new TLegend(0.7,0.7,0.88,0.88);
+    TLegend* leg = new TLegend(0.68,0.7,0.85,0.88);
     for (int ip=0;ip<5;ip++){
       fpartical[ip]->SetParameters(par+ip*3);  
       // if (ip!=2) fpartical[ip]->Draw("same");

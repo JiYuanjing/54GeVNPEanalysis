@@ -17,6 +17,7 @@ void refitv2()
 
   //0-10%
   TString name[6] = {"0_10","10_20","20_30","30_40","40_50","50_60"};
+  TString centname[6] = {"0-10%","10-20%","20-30%","30-40%","40-50%","50-60%"};
   TGraphErrors* g200[6];
   TGraphErrors* g200Low[6];
   TMultiGraph* g200Combine[6];
@@ -26,13 +27,13 @@ void refitv2()
   TF1* fit[6];
   TF1* fitpol = new TF1("fitpol","pol4",0,18);
   TFile* fout = new TFile("fitpionv2.root","recreate");
-  // c->Divide(3,2);
+  c->Divide(3,2);
   for (int i=0;i<6;i++)
   {
     fit[i] = new TF1(Form("fit_%s",name[i].Data()),myFit,0,18,7);
     fit[i]->SetNpx(10000);
-    c->Clear();
-    // c->cd(i+1);
+    /* c->Clear(); */
+    c->cd(i+1);
     g200Combine[i]=new TMultiGraph(Form("pionv2Com_%s",name[i].Data()),Form("pionv2Com_%s",name[i].Data()));
 
     // g200Combine[i]=new TMultiGraph;
@@ -56,7 +57,7 @@ void refitv2()
     
     g200Combine[i]->Draw("p");
     // g200Combine[i]->GetXaxis()->SetRangeUser(0,1);
-    g200[i]->GetXaxis()->SetTitle("p_{T}");
+    g200[i]->GetXaxis()->SetTitle("p_{T} (GeV/c)");
     g200[i]->GetYaxis()->SetTitle("v_{2}");
 
     g200Combine[i]->Fit(fitpol);
@@ -74,7 +75,7 @@ void refitv2()
     g200Combine[i]->Fit( fit[i],"B");
     fit[i]->SetLineColor(kMagenta);
     fit[i]->Draw("same");
-    drawLatex(0.2,0.8,Form("%s \%",name[i].Data()),0.05);
+    drawLatex(0.2,0.8,Form("%s",centname[i].Data()),0.05);
     addpdf(pdf);
     g200Combine[i]->Write();
     fit[i]->Write();

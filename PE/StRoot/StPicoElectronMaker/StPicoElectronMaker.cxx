@@ -67,41 +67,51 @@ void StPicoElectronMaker::initHists(){
   // electron
   hinvBetavsP = new TH2F("hinvBetavsP","#frac{1}{#beta} vs p;p(GeV/c);#frac{1}{#beta}",1200,0,3,640,0.7,1.5);
   // hdEdx = new TH2F("hdEdx","dEdx vs p*charge;p*charge(GeV/c);dEdx",200,-2,2,400,0,25);
-  hnSigEvsP = new TH3F("hnSigEvsP","all tracks;p(GeV/c);nSigE;Centrality", 480,0,6,500,-10,15,9,-0.5,8.5);  //all tracks  //avoid the precision
-  hnSigE_e = new TH3F("hnSigE_e","photonic elecron;p(GeV/c);nSigE;Centrality", 480,0,6,100 ,-5.01,5,9,-0.5,8.5);  //select PE e
-  // hnSigE_e = new TH2F("hnSigE_e","photonic elecron;p(GeV/c);nSigE", 480,0,6,100 ,-5.01,5);  //select PE e
+  hnSigEvsP = new TH3F("hnSigEvsP","all tracks;p(GeV/c);nSigE;Centrality", 400,0,4,500,-10,15,10,-0.5,8.5);  //all tracks  //avoid the precision
+  hnSigE_e = new TH3F("hnSigE_e","photonic elecron;p(GeV/c);nSigE;Centrality", 400,0,4,100 ,-5.01,5,10,-0.5,8.5);  //select PE e
+  hnSigE_e_pt = new TH3F("hnSigE_e_pt","photonic elecron;p(GeV/c);nSigE;Centrality", 400,0,4,100 ,-5.01,5,10,-0.5,8.5);  //select PE e
+  // hnSigE_e = new TH2F("hnSigE_e","photonic elecron;p(GeV/c);nSigE", 400,0,6,100 ,-5.01,5);  //select PE e
   hndedx_e = new TH2F("hndedx_e","e with tof pid;nSigE;ndEdx", 100,-5,5,35,15,50);  //select tof p
-  // hnSigE_e_Dz = new TH2F("hnSigE_e_Dz","Dalitz elecron;p(GeV/c);nSigE", 480,0,6,100,-5.01,5);  //select PE e
-  // hnSigE_e_LS = new TH2F("hnSigE_e_ls","photonic elecron like sign;p(GeV/c);nSigE", 480, 0,6, 100,-5.01,5);
-  hnSigE_e_LS = new TH3F("hnSigE_e_ls","photonic elecron like sign;p(GeV/c);nSigE;Centrality", 480, 0,6, 100,-5.01,5,9,-0.5,8.5);
-  // hnSigE_e_LS_Dz = new TH2F("hnSigE_e_ls_Dz","Dalitz elecron like sign;p(GeV/c);nSigE", 480, 0,6, 100,-5.01,5);
-  hinvBeta_e = new TH2F("hinvBeta_e","photonic elecron;p(GeV/c);nSigE", 480 ,0,6, 100,0.9,1.1);  //select PE e
-  hinvBeta_e_LS = new TH2F("hinvBeta_e_ls","photonic elecron;p(GeV/c);nSigE", 480 ,0,6, 100,-0.9,1.1);  //select PE e
-  // hnSigE_p = new TH2F("hnSigE_p","proton with tof pid;p(GeV/c);nSigE", 480 ,0,6, 180,-10,35);  //select tof p
-  hnSigE_p = new TH3F("hnSigE_p","proton with tof pid;p(GeV/c);nSigE;Centraity", 480 ,0,6, 180,-10,35,9,-0.5,8.5);  //select tof p
+  // hnSigE_e_Dz = new TH2F("hnSigE_e_Dz","Dalitz elecron;p(GeV/c);nSigE", 400,0,6,100,-5.01,5);  //select PE e
+  // hnSigE_e_LS = new TH2F("hnSigE_e_ls","photonic elecron like sign;p(GeV/c);nSigE", 400, 0,6, 100,-5.01,5);
+  hnSigE_e_LS = new TH3F("hnSigE_e_ls","photonic elecron like sign;p(GeV/c);nSigE;Centrality", 400, 0,4, 100,-5.01,5,10,-0.5,8.5);
+  hnSigE_e_LS_pt = new TH3F("hnSigE_e_ls_pt","photonic elecron like sign;p(GeV/c);nSigE;Centrality", 400, 0,4, 100,-5.01,5,10,-0.5,8.5);
+  // hnSigE_e_LS_Dz = new TH2F("hnSigE_e_ls_Dz","Dalitz elecron like sign;p(GeV/c);nSigE", 400, 0,6, 100,-5.01,5);
+  hinvBeta_e = new TH2F("hinvBeta_e","photonic elecron;p(GeV/c);nSigE", 400 ,0,4, 100,0.9,1.1);  //select PE e
+  hinvBeta_e_LS = new TH2F("hinvBeta_e_ls","photonic elecron;p(GeV/c);nSigE", 400 ,0,4, 100,-0.9,1.1);  //select PE e
+  // hnSigE_p = new TH2F("hnSigE_p","proton with tof pid;p(GeV/c);nSigE", 400 ,0,6, 180,-10,35);  //select tof p
+  hnSigE_p = new TH3F("hnSigE_p","proton with tof pid;p(GeV/c);nSigE;Centraity", 400 ,0,4, 180,-10,35,10,-0.5,8.5);  //select tof p
+  hnSigE_p_pt = new TH3F("hnSigE_p_pt","proton with tof pid;p(GeV/c);nSigE;Centraity", 400 ,0,4, 180,-10,35,10,-0.5,8.5);  //select tof p
   // hndedx_p = new TH2F("hndedx_p","proton with tof pid;nSigE;ndEdx", 180,-10,35,35,15,50);  //select tof p
-  // hnSigE_p_wd = new TH2F("hnSigE_p_wd","proton with tof pid;p(GeV/c);nSigE", 480 ,0,6, 180,-10,35);  //select tof p
-  // hnSigE_p_tof = new TH2F("hnSigE_p_tof","proton with tof pid;p(GeV/c);nSigE", 480 ,0,6, 180,-10,35);  //select tof p
-  // hnSigE_p_sb = new TH2F("hnSigE_p_sb","proton with tof pid;p(GeV/c);nSigE", 480 ,0,6, 180,-10,35);  //select tof p
-  // hnSigE_pi = new TH2F("hnSigE_pi","pion with tof pid;p(GeV/c);nSigE", 480 ,0,6, 150,-10,5);  //tof pi
-  hnSigE_pi = new TH3F("hnSigE_pi","pion with tof pid;p(GeV/c);nSigE;Centraity", 480 ,0,6, 150,-10,5,9,-0.5,8.5);  //tof pi
+  // hnSigE_p_wd = new TH2F("hnSigE_p_wd","proton with tof pid;p(GeV/c);nSigE", 400 ,0,6, 180,-10,35);  //select tof p
+  // hnSigE_p_tof = new TH2F("hnSigE_p_tof","proton with tof pid;p(GeV/c);nSigE", 400 ,0,6, 180,-10,35);  //select tof p
+  // hnSigE_p_sb = new TH2F("hnSigE_p_sb","proton with tof pid;p(GeV/c);nSigE", 400 ,0,6, 180,-10,35);  //select tof p
+  // hnSigE_pi = new TH2F("hnSigE_pi","pion with tof pid;p(GeV/c);nSigE", 400 ,0,6, 150,-10,5);  //tof pi
+  hnSigE_pi = new TH3F("hnSigE_pi","pion with tof pid;p(GeV/c);nSigE;Centraity", 400 ,0,4, 150,-10,5,10,-0.5,8.5);  //tof pi
+  hnSigE_pi_pt = new TH3F("hnSigE_pi_pt","pion with tof pid;p(GeV/c);nSigE;Centraity", 400 ,0,4, 150,-10,5,10,-0.5,8.5);  //tof pi
   // hndedx_pi = new TH2F("hndedx_pi","pion with tof pid;nSigE;ndEdx", 150,-10,5,35,15,50);  //select tof p
-  // hnSigE_piMg = new TH2F("hnSigE_piMg","merged pion with tof pid;p(GeV/c);nSigE", 480 ,0,6,180,-10,35);  //select tof p
-  hnSigE_piMg = new TH3F("hnSigE_piMg","merged pion with tof pid;p(GeV/c);nSigE;Centrality", 480 ,0,6,180,-10,35,9,-0.5,8.5);  //select tof p
+  // hnSigE_piMg = new TH2F("hnSigE_piMg","merged pion with tof pid;p(GeV/c);nSigE", 400 ,0,6,180,-10,35);  //select tof p
+  hnSigE_piMg = new TH3F("hnSigE_piMg","merged pion with tof pid;p(GeV/c);nSigE;Centrality", 400 ,0,4,180,-10,35,10,-0.5,8.5);  //select tof p
+  hnSigE_piMg_pt = new TH3F("hnSigE_piMg_pt","merged pion with tof pid;p(GeV/c);nSigE;Centrality", 400 ,0,4,180,-10,35,10,-0.5,8.5);  //select tof p
   // hndedx_piMg = new TH2F("hndedx_piMg","merged pion with tof pid;nSigE;ndEdx", 180,-10,35,35,15,50);  //select tof p
-  // hnSigE_k = new TH2F("hnSigE_k","kaon with tof pid;p(GeV/c);nSigE", 480 ,0,6,70 ,-10,25);
-  hnSigE_k = new TH3F("hnSigE_k","kaon with tof pid;p(GeV/c);nSigE;Centrality", 480 ,0,6,70 ,-10,25,9,-0.5,8.5);
+  // hnSigE_k = new TH2F("hnSigE_k","kaon with tof pid;p(GeV/c);nSigE", 400 ,0,6,70 ,-10,25);
+  hnSigE_k = new TH3F("hnSigE_k","kaon with tof pid;p(GeV/c);nSigE;Centrality", 400 ,0,4,70 ,-10,25,10,-0.5,8.5);
+  hnSigE_k_pt = new TH3F("hnSigE_k_pt","kaon with tof pid;p(GeV/c);nSigE;Centrality", 400 ,0,4,70 ,-10,25,10,-0.5,8.5);
   // hndedx_k = new TH2F("hndedx_k","kaon with tof pid;nSigE;ndEdx", 70,-10,25,35,15,50);  //select tof p
-  // hnSigE_k_sb = new TH2F("hnSigE_k_sb","kaon with tof pid;p(GeV/c);nSigE", 480 ,0,6,70 ,-10,25);
-  // hnSigE_k_tof = new TH2F("hnSigE_k_tof","kaon with tof pid;p(GeV/c);nSigE", 480 ,0,6,70,-10,25);
-  // hnSigE_k_wd = new TH2F("hnSigE_k_wd","kaon with tof pid;p(GeV/c);nSigE", 480 ,0,6,70,-10,25);
-  // hnSigE_Cut = new TH2F("hnSigE_Cut","elecron after pid cut;p(GeV/c);nSigE", 480 ,0,6, 100,-5,5);
-  hnSigE_Cut = new TH3F("hnSigE_Cut","elecron after pid cut;p(GeV/c);nSigE;Centrality", 480 ,0,6, 100,-5,5,9,-0.5,8.5);
-  // hnSigE_tof = new TH2F("hnSigE_tof","elecron with tof only;p(GeV/c);nSigE", 480,0,6, 100,-10,15);
-  hnSigE_tof = new TH3F("hnSigE_tof","elecron with tof only;p(GeV/c);nSigE;Centraity", 480,0,6, 100,-10,15,9,-0.5,8.5);
+  // hnSigE_k_sb = new TH2F("hnSigE_k_sb","kaon with tof pid;p(GeV/c);nSigE", 400 ,0,6,70 ,-10,25);
+  // hnSigE_k_tof = new TH2F("hnSigE_k_tof","kaon with tof pid;p(GeV/c);nSigE", 400 ,0,6,70,-10,25);
+  // hnSigE_k_wd = new TH2F("hnSigE_k_wd","kaon with tof pid;p(GeV/c);nSigE", 400 ,0,6,70,-10,25);
+  // hnSigE_Cut = new TH2F("hnSigE_Cut","elecron after pid cut;p(GeV/c);nSigE", 400 ,0,6, 100,-5,5);
+  hnSigE_Cut = new TH3F("hnSigE_Cut","elecron after pid cut;p(GeV/c);nSigE;Centrality", 400 ,0,4, 100,-5,5,10,-0.5,8.5);
+  hnSigE_Cut_pt = new TH3F("hnSigE_Cut_pt","elecron after pid cut;p(GeV/c);nSigE;Centrality", 400 ,0,4, 100,-5,5,10,-0.5,8.5);
+  // hnSigE_tof = new TH2F("hnSigE_tof","elecron with tof only;p(GeV/c);nSigE", 400,0,6, 100,-10,15);
+  hnSigE_tof = new TH3F("hnSigE_tof","elecron with tof only;p(GeV/c);nSigE;Centraity", 400,0,4, 100,-10,15,10,-0.5,8.5);
+  hnSigE_tof_pt = new TH3F("hnSigE_tof_pt","elecron with tof only;p(GeV/c);nSigE;Centraity", 400,0,4, 100,-10,15,10,-0.5,8.5);
   // hndedx_tof = new TH2F("hndedx_tof","only with tof pid;nSigE;ndEdx", 100,-10,15,35,15,50);  //select tof p
+  hdEdx_tof = new TH2F("hdEdx_tof","only with tof pid;p (GeV);ndEdx", 400,0,4,800,0,8);  //select tof p
+  hdEdx_tofpt = new TH2F("hdEdx_tofpt","only with tof pid;p_{T} (GeV);ndEdx", 400,0,4,800,0,8);  //select tof p
   hincEptCent = new TH2F("hincEptCent","inclusive e;p_{T}(GeV/c);cent", 100,0,5,9,-0.5,8.5);
-  hePtvsP = new TH2F("hePtvsP","hePtvsP",200,0,10,200,0,10);
+  hePtvsP = new TH2F("hePtvsP","hePtvsP",200,0,4,200,0,4);
   hphoto = new TH3F("hphoto","Mee;Mee;partner e p_{T};cent",300,0,0.3,100,0,5,9,-0.5,8.5);
   hphoto_LS = new TH3F("hphoto_LS","Mee like sign vs e pt vs cent;Mee;partner e p_{T};cent",300,0,0.3,100,0,5,9,-0.5,8.5);
   hphotoVsPt_LS = new TH3F("hphotoVsPt_LS","Mee like sign vs photon pt vs cent;Mee;photon p_{T};cent",120,0,0.3,80,0,8,9,-0.5,8.5);
@@ -124,20 +134,27 @@ Int_t StPicoElectronMaker::Finish()
   //hists
   hnSigEvsP->Write();  //all tracks
   hnSigE_p->Write();  //select tof p
+  hnSigE_p_pt->Write();  //select tof p
   // hndedx_p->Write();
   // hnSigE_p_sb->Write();
   // hnSigE_p_tof->Write();
   // hnSigE_p_wd->Write();
   hnSigE_pi->Write();  //tof pi
+  hnSigE_pi_pt->Write();  //tof pi
   hnSigE_piMg->Write();
+  hnSigE_piMg_pt->Write();
   // hndedx_piMg->Write();
   hnSigE_k->Write();
+  hnSigE_k_pt->Write();
   // hndedx_k->Write();
   // hnSigE_k_sb->Write();
   // hnSigE_k_wd->Write();
   // hnSigE_k_tof->Write();
   hnSigE_Cut->Write();
   hnSigE_tof->Write();
+  hnSigE_tof_pt->Write();
+  hdEdx_tof->Write();
+  hdEdx_tofpt->Write();
   // hndedx_tof->Write();
   hePtvsP->Write();
   hphoto_LS->Write();
@@ -147,6 +164,7 @@ Int_t StPicoElectronMaker::Finish()
   hinvBeta_e->Write();
   hinvBeta_e_LS->Write();
   hnSigE_e->Write();  //select PE e
+  hnSigE_e_pt->Write();  //select PE e
   // hnSigE_e_Dz->Write();  //select PE e
   hnSigE_e_LS->Write();
   // hnSigE_e_LS_Dz->Write();
@@ -243,13 +261,19 @@ bool StPicoElectronMaker::ProcessPicoEvent()
       bool iselectron = isElectron(pe_1,tofmatch,beta);  //after pid cut
 
       //Fill histograms 
-      if (istofpi &&  fabs(pe_1->nSigmaPion())<anaCuts::nSigmaPi_tofsmp) hnSigE_pi->Fill(mom.mag(),nSigPE1,mCent); 
+      if (istofpi &&  fabs(pe_1->nSigmaPion())<anaCuts::nSigmaPi_tofsmp) 
+      {
+        hnSigE_pi->Fill(mom.mag(),nSigPE1,mCent); 
+        hnSigE_pi_pt->Fill(mom.perp(),nSigPE1,mCent); 
+      }
       if (istofkaon &&  fabs(pe_1->nSigmaKaon())<anaCuts::nSigmaK_tofsmp) {
         hnSigE_k->Fill(mom.mag(),nSigPE1,mCent); 
+        hnSigE_k_pt->Fill(mom.mag(),nSigPE1,mCent); 
         // hndedx_k->Fill(mom.mag(),pe_1->nHitsDedx());
       }
       if (istofproton && fabs(pe_1->nSigmaProton())< anaCuts::nSigmaP_tofsmp) {
         hnSigE_p->Fill(mom.mag(),nSigPE1,mCent);
+        hnSigE_p_pt->Fill(mom.perp(),nSigPE1,mCent);
         // hndedx_p->Fill(mom.mag(),pe_1->nHitsDedx());
       }
       // if (istofkaon ) hnSigE_k_tof->Fill(mom.mag(),nSigPE1); 
@@ -265,12 +289,17 @@ bool StPicoElectronMaker::ProcessPicoEvent()
       }
       if (istofelectron) {
         hnSigE_tof->Fill(mom.mag(),nSigPE1,mCent);
+        hnSigE_tof_pt->Fill(mom.perp(),nSigPE1,mCent);
+        if (mCent>=2) hdEdx_tofpt->Fill(mom.perp(),pe_1->dEdx());
+        if (mCent>=2) hdEdx_tof->Fill(mom.mag(),pe_1->dEdx());
         // hndedx_tof->Fill(mom.mag(),pe_1->nHitsDedx());
       }
       if (istofpi && pe_1->nSigmaPion()>5 ) {
         hnSigE_piMg->Fill(mom.mag(),nSigPE1,mCent);
+        hnSigE_piMg_pt->Fill(mom.perp(),nSigPE1,mCent);
         // hndedx_piMg->Fill(mom.mag(),pe_1->nHitsDedx());
       }
+      continue;
       if (isPE1){
         for (int itrack2=0;itrack2<nTracks;itrack2++){
           if (itrack1==itrack2) continue;
@@ -315,9 +344,11 @@ bool StPicoElectronMaker::ProcessPicoEvent()
             //reconstruct the photon
             bool unlike=pe_2->charge()*pe_1->charge()<0;
             if (mother.m()<0.3){
-              if (mother.m()<0.1 && unlike) {
+              if (mother.m()<0.05 && unlike) {
                 hnSigE_e->Fill(pe_2->gMom().mag(),pe_2->nSigmaElectron(),mCent);
-                // hnSigE_e->Fill(pe_1->pMom().mag(),pe_1->nSigmaElectron());
+                // hnSigE_e->Fill(pe_1->gMom().mag(),pe_1->nSigmaElectron());
+                hnSigE_e_pt->Fill(pe_2->gMom().perp(),pe_2->nSigmaElectron(),mCent);
+                // hnSigE_e_pt->Fill(pe_1->gMom().perp(),pe_1->nSigmaElectron(),mCent);
                 if (vtxToV0.perp()<2.5)
                 {
                   // hnSigE_e_Dz->Fill(pe_2->gMom().mag(),pe_2->nSigmaElectron());
@@ -326,8 +357,9 @@ bool StPicoElectronMaker::ProcessPicoEvent()
                 hinvBeta_e->Fill(pe_2->gMom().mag(),1./beta2);
                 hV0->Fill(V0.x(),V0.y(),V0.z());
               }
-              if ( mother.m()<0.1 && (!unlike)){
+              if ( mother.m()<0.05 && (!unlike)){
                 hnSigE_e_LS->Fill(pe_2->gMom().mag(),pe_2->nSigmaElectron(),mCent);
+                hnSigE_e_LS_pt->Fill(pe_2->gMom().perp(),pe_2->nSigmaElectron(),mCent);
                 // hnSigE_e_LS->Fill(pe_1->pMom().mag(),pe_1->nSigmaElectron());
                 if (vtxToV0.perp()<2.5) {
                   // hnSigE_e_LS_Dz->Fill(pe_2->gMom().mag(),pe_2->nSigmaElectron());

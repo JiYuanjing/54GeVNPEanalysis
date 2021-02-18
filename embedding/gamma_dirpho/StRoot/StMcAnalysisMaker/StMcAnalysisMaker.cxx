@@ -86,7 +86,6 @@ bool StMcAnalysisMaker::InitHists()
   hPi0Pt = new TH2F("hPi0Pt","hPi0Pt;p_{T}[GeV];Cent",120,0,highPt,9,-0.5,8.5);
   hPi0Pt_norm = new TH2F("hPi0Pt_norm","hPi0Pt;p_{T}[GeV];Cent",120,0,highPt,9,-0.5,8.5);
   hPi0Pt_weight = new TH2F("hPi0Pt_weight","hPi0Pt;p_{T}[GeV];Cent",120,0,highPt,9,-0.5,8.5);
-  hPi0Pt_ptwt = new TH2F("hPi0Pt_ptwt","hPi0Pt;p_{T}[GeV];Cent",120,0,highPt,9,-0.5,8.5);
   hPi0PhiEtaPt = new TH3F("hPi0PhiEtaPt","hPi0PhiEtaPt;p_{T}[GeV];Phi;Eta",120,0,highPt,180,-1*TMath::Pi(),TMath::Pi(),90,-1.8,1.8);
   //check the global tracks (electron) efficiency and QA
   hnHitsvsPt = new TH2F("hnHits","hnHits;nHits;p_{T}",55,0,55,10,0,5); 
@@ -122,13 +121,17 @@ bool StMcAnalysisMaker::InitHists()
     hMassDiE = new TH3F("hMassDiE","hMassDiE;mass;pt;Cent",160,0,0.4,100,0,4,9,-0.5,8.5);
     hMassDiEMC = new TH3F("hMassDiEMC","hMassDiEMC;mass;pt;Cent",160,0,0.4,100,0,4,9,-0.5,8.5);
     hDcaPair = new TH3F("hDcaPair","hDcaPair;DCApair;pt;Cent",40,0,2,100,0,4,9,-0.5,8.5);
+    hDcaPair->Sumw2();
 
     //check the partner electron QA 
     hPartEnFits = new TH2F("hPartEnFits","hPartEnFits;p_{T};nHitsFit",100,0,4,45,10,55);
+    hPartEnFits->Sumw2();
     hPartEnFitsTagEpt = new TH2F("hPartEnFitsTagEpt","hPartEnFits;p_{T};nHitsFit",100,0,4,45,10,55);
     hPartEdca = new TH2F("hPartEdca","hPartEdca;p_{T};DCA",100,0,4,50,0,3); 
+    hPartEdca->Sumw2();
     hPartEptetaphi = new TH3F("hPartEptetaphi","hPartEptetaphi;pt;Eta;Phi",100,0,4,50,-1,1,180,-3.14,3.14);
     hPairDecayL = new TH2F("hPairDecayL","hPairDecayL;DecayL;p_{T}",150,0,30,60,0,4);
+    hPairDecayL->Sumw2();
 
     //pho v2
     pPi0Ev2 = new TProfile2D("pPi0Ev2","pPi0Ev2;pt;cent",100,0,4,9,-0.5,8.5);
@@ -184,7 +187,8 @@ void StMcAnalysisMaker::bookSpectra(int centrality)
    {
       // TFile* file = TFile::Open("StRoot/macros/fout_pi0_eta_gamma_0918.root");
       // TFile* file = TFile::Open("StRoot/macros/fout_pi0_eta_gamma_0926.root");
-      TFile* file = TFile::Open("StRoot/macros/fout_pi0_eta_gamma_1002.root");
+      //more smooth 
+      TFile* file = TFile::Open("StRoot/macros/fout_pi0_eta_gamma1016.root");
       int idx = centrality;
       if (idx<2) idx = 2;
       // mPi0Spectra = (TF1*)file->Get(Form("fGMSp_comb_%d",idx));
@@ -381,7 +385,6 @@ int StMcAnalysisMaker::fillTracks(int& nRTracks, int& nMcTracks)
         hPi0Pt->Fill(mcTrack->pt(),mCentrality ,mCentWeight);
         hPi0Pt_norm->Fill(mcTrack->pt(),mCentrality ,mCentWeight*(1./(1.*nPi0)));
         hPi0Pt_weight->Fill(mcTrack->pt(),mCentrality ,mCentWeight*(1./(1.*nPi0))*ptweight);
-        hPi0Pt_ptwt->Fill(mcTrack->pt(),mCentrality ,mCentWeight*ptweight);
         hPi0PhiEtaPt->Fill(mcTrack->pt(),mcTrack->momentum().phi(),mcTrack->momentum().pseudoRapidity(),mCentWeight*(1./(1.*nPi0))*ptweight);
         fillPi0v2(mcTrack,(1./(1.*nPi0)));
         // cout <<" mcTrk pi0 parent: "<< (mcTrk->parent()) << endl;
@@ -468,19 +471,9 @@ void StMcAnalysisMaker::fillMcTrack(StMcTrack const* const mcTrk)
       // only check the dalitz decay particles
       // if (mcTrk->parent()->geantId() == 10007 && mcTrk->pt()>McAnaCuts::minPt && fabs(mcTrk->pseudoRapidity())<McAnaCuts::partnerEta)
       // if ( mcTrk->pt()>McAnaCuts::minPt && fabs(mcTrk->pseudoRapidity())<McAnaCuts::eta)
-      double weight = 1;
-      if (McAnaCuts::parentId>0){
-        if (mcTrk->parent()) 
-        {
-          if (mcTrk->parent()->geantId()==McAnaCuts::parentId)
-             weight = mPi0Spectra->Eval(mcTrk->parent()->pt());
-          else return;
-        }
-        else return;
-      }
       if ( mcTrk->pt()>McAnaCuts::minPt && fabs(mcTrk->pseudoRapidity())<McAnaCuts::TagEta)
       {
-        hMcElectronPtvsCent->Fill(mcTrk->pt(),mCentrality,mCentWeight*weight);
+        hMcElectronPtvsCent->Fill(mcTrk->pt(),mCentrality,mCentWeight);
         // hMcElectronPtvsCent_test->Fill(mcTrk->momentum().perp(),mCentrality,mCentWeight);
       }
     }
@@ -761,7 +754,7 @@ bool StMcAnalysisMaker::isGoodPartE(StMuTrack const* const rcTrack) const
   int nHitsdEdx = rcTrack->nHitsDedx();
   int nHitsMax = rcTrack->nHitsPoss();
   // bool passnHits = nHitsFit >15 && nHitsFit/(1.0*nHitsMax)>McAnaCuts::nFit2nMax ;
-  bool passnHits = nHitsFit > McAnaCuts::nFit_PartE && nHitsFit/(1.0*nHitsMax)>McAnaCuts::nFit2nMax ;
+  bool passnHits = nHitsFit >20  && nHitsFit/(1.0*nHitsMax)>McAnaCuts::nFit2nMax ;
   // bool passnHits = nHitsFit >McAnaCuts::nHitsFit &&
   //   nHitsFit/(1.*nHitsMax)>McAnaCuts::nFit2nMax &&
   //   fabs(nHitsdEdx)>McAnaCuts::nHitsdEdx;
@@ -988,6 +981,7 @@ int StMcAnalysisMaker::getCentralityBin(float vz,int runId,float mult,float &wei
   {
     if (mult<McAnaCuts::Refmult_cent[cent]) return cent-1;
   }
+  weight=McAnaCuts::CentScaleFactor; //if cent=8, then set a scale
   return McAnaCuts::nCent-1;
 }
 

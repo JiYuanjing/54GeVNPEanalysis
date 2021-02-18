@@ -95,27 +95,35 @@ class StPicoElectronMaker : public StMaker
     TH3F* hnSigEvsP;  //all tracks
     // TH2F* hnSigE_p;  //select tof p
     TH3F* hnSigE_p;  //select tof p
+    TH3F* hnSigE_p_pt;  //select tof p
     // TH2F* hndedx_p;
     // TH2F* hnSigE_p_sb;  //select tof p
     // TH2F* hnSigE_p_tof;  //select tof p
     // TH2F* hnSigE_p_wd;  //select tof p
     // TH2F* hnSigE_pi;  //tof pi
     TH3F* hnSigE_pi;  //tof pi
+    TH3F* hnSigE_pi_pt;  //tof pi
     // TH2F* hndedx_pi;
     // TH2F* hndedx_pi;
     // TH2F* hnSigE_piMg;  //merged pi
     TH3F* hnSigE_piMg;  //merged pi
+    TH3F* hnSigE_piMg_pt;  //merged pi
     // TH2F* hndedx_piMg;
     TH3F* hnSigE_k;
+    TH3F* hnSigE_k_pt;
     // TH2F* hnSigE_k;
     // TH2F* hndedx_k;
     // TH2F* hnSigE_k_sb;
     // TH2F* hnSigE_k_wd;
     // TH2F* hnSigE_k_tof;
     TH3F* hnSigE_Cut;
+    TH3F* hnSigE_Cut_pt;
     // TH2F* hnSigE_Cut;
     // TH2F* hnSigE_tof;
     TH3F* hnSigE_tof;
+    TH3F* hnSigE_tof_pt;
+    TH2F* hdEdx_tof;
+    TH2F* hdEdx_tofpt;
     // TH2F* hndedx_tof;
     TH2F* hePtvsP;
     TH3F* hphoto_LS;
@@ -125,11 +133,13 @@ class StPicoElectronMaker : public StMaker
     TH2F* hinvBeta_e_LS;
     TH2F* hinvBeta_e;
     TH3F* hnSigE_e;  //select PE e
+    TH3F* hnSigE_e_pt;  //select PE e
     // TH2F* hnSigE_e;  //select PE e
     TH2F* hndedx_e;
     // TH2F* hnSigE_e_Dz;  //select PE e
     // TH2F* hnSigE_e_LS;
     TH3F* hnSigE_e_LS;
+    TH3F* hnSigE_e_LS_pt;
     // TH2F* hnSigE_e_LS_Dz;
     TH3F* hV0;
     TH3F* hV0_LS;

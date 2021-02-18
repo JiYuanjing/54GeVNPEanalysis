@@ -57,7 +57,7 @@ namespace McAnaCuts
    float const parVz_mult[nparVz_mult]={435.9,-0.02413,-0.003707,0.0002204,1.487e-5,-2.95e-07,-1.866e-8};
    int const nCent = 9 ;
    float const Refmult_cent[nCent] = {7,16,31,54,89,138,205,299,361}; //refmult > par[i],  70-80%, 60-70%, ... ,0-5% 
- 
+   float CentScaleFactor = 0.8125; //because the central bin is too high 
   int const parentId = 10007; 
   int const gammaId = 1; 
   int const dauId1 = 2;

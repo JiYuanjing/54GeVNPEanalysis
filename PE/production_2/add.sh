@@ -4,8 +4,10 @@
 #add all of the root files under the directory#
 ############################
 
+START=`date +%s`
 tmp="tmplist.txt"
-out="../production/PE_$1.root"
+# out="../ana/incEv2_0930.root"
+out="../PE_$1.root"
 N=`ls *.root | wc -l`
 rm -rf ${tmp}
 ls *.root > ${tmp}
@@ -22,3 +24,8 @@ for i in `cat ${tmp}`; do
 done
 echo ${list}
 hadd ${list}
+
+END=`date +%s`;
+time=$((END-START))
+echo $time
+

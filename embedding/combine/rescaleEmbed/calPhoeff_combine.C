@@ -33,7 +33,7 @@ void calPhoeff_combine(TString inputfilename="rescale_combine.root", TString pdf
   ProjectionAndFit(hTagE,hRecoTagE,2,8,"RecoEff",pdf,fout);
   ProjectionAndFit(hTagE,hRecoTagE,6,8,"RecoEff",pdf,fout);
   gStyle->SetOptFit(0);
- 
+
   //cal v2
   TProfile2D* pPhev2_2d = (TProfile2D*)file->Get("pPhoEv2");
   TProfile2D* pPi0v2_2d = (TProfile2D*)file->Get("pPi0Ev2");
@@ -53,9 +53,9 @@ void calPhoeff_combine(TString inputfilename="rescale_combine.root", TString pdf
   gStyle->SetOptFit(111);
 
   fitPhoEv2(hPhEv2,hPhEv2raw, 2, 8,"PhoE",  pdf, fout);
-  fitPhoEv2(hPhEv2,hPhEv2raw, 2, 5,"PhoE",  pdf, fout);
-  fitPhoEv2(hPhEv2,hPhEv2raw, 6, 8,"PhoE",  pdf, fout);
- 
+  /* fitPhoEv2(hPhEv2,hPhEv2raw, 2, 5,"PhoE",  pdf, fout); */
+  /* fitPhoEv2(hPhEv2,hPhEv2raw, 6, 8,"PhoE",  pdf, fout); */
+
   fitPhoEv2(hPhEv2raw, 2, 8,"Raw",  pdf, fout);
   // fitPhoEv2(hPhEv2raw, 2, 5,"Raw",  pdf, fout);
   // fitPhoEv2(hPhEv2raw, 7, 8,"Raw",  pdf, fout);
@@ -71,9 +71,9 @@ void calPhoeff_combine(TString inputfilename="rescale_combine.root", TString pdf
   // fitPhoEv2(hPi0v2, 4, 5,"Pi0",  pdf, fout);
 
   // CalPhoEv2(pPi0v2_2d,2,8,"Pi0",pdf,fout);
-  
+
   gStyle->SetOptFit(0);
-  
+
   pdf->On();
   pdf->Close();
   fout->Close();
@@ -85,8 +85,11 @@ void ProjectionAndFit(TH2F* hMc,TH2F* hRc,int centL,int centH,TString name,TPDF*
   // TFile* file = new TFile("test.McAna.root");
   int centHbin = hMc->GetYaxis()->FindBin(centH);
   int centLbin = hMc->GetYaxis()->FindBin(centL);
-  int const nbin =22;
-  double ptedge[nbin+1]={0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,1,1.1,1.2,1.4,1.6,1.8,2.0,2.4,2.8};
+  int const nbin =27;
+  double ptedge[nbin+1]={0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.4,2.8};
+  // int const nbin =19;
+  // double ptedge[nbin+1]={0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.8,0.9,1,1.2,1.6,2.0,2.4,2.8};
+  // double ptedge[nbin+1]={0.2,0.24,0.3,0.34,0.4,0.44,0.5,0.54,0.6,0.64,0.7,0.74,0.8,0.84,0.9,1,1.1,1.2,1.4,1.6,1.8,2.0,2.4,2.8};
   TH1F* hMcX =(TH1F*)hMc->ProjectionX("hMcX",centLbin,centHbin);
   TH1F* hRcX =(TH1F*)hRc->ProjectionX("hRcX",centLbin,centHbin);
   hMcX->SetDirectory(0);
@@ -98,6 +101,17 @@ void ProjectionAndFit(TH2F* hMc,TH2F* hRc,int centL,int centH,TString name,TPDF*
   TH1F* hRecoEff = (TH1F*)hRcX->Clone(Form("h%s_%d_%d",name.Data(),centL,centH));
   hRecoEff->SetDirectory(0); 
   hRecoEff->Divide(hMcX);
+  // TGraphAsymmErrors* geff = new TGraphAsymmErrors(hRcX,hMcX);
+  TEfficiency*  geff= new TEfficiency(*hRcX,*hMcX);
+  // geff->SetStatisticOption(TEfficiency::kBUniform);
+  geff->SetStatisticOption(TEfficiency::kBJeffrey);
+  geff->SetName(Form("Eff%s_%d_%d",name.Data(),centL,centH));
+  for (int ip=0;ip<hRecoEff->GetNbinsX();ip++)
+  {
+    if (hRecoEff->GetBinCenter(ip+1)<0.2) continue; 
+    hRecoEff->SetBinContent(ip+1,geff->GetEfficiency(ip+1));
+    hRecoEff->SetBinError(ip+1, geff->GetEfficiencyErrorLow(ip+1));
+  }
   hRecoEff->GetYaxis()->SetRangeUser(0,0.9);
   hRecoEff->Draw();
   TF1* fit = new TF1(Form("f%s_%d_%d",name.Data(),centL,centH),"pol3",0,4); 
@@ -105,10 +119,11 @@ void ProjectionAndFit(TH2F* hMc,TH2F* hRc,int centL,int centH,TString name,TPDF*
   hRecoEff->GetXaxis()->SetRangeUser(0.2,4);
   hRecoEff->Fit(fit,"R");
 
-  drawLatex(0.2,0.8,Form("%s %d-%d \%",name.Data(),CentNum[centH+1],CentNum[centL]), 0.035);
+  drawLatex(0.2,0.88,Form("%s %d-%d%s",name.Data(),CentNum[centH+1],CentNum[centL],"%"), 0.035);
   addpdf(pdf);
   fout->cd();
   hRecoEff->Write();
+  geff->Write();
   fit->Write(); 
 } 
 void fitPhoEv2(TH3F* hPhev2,TH3F* hPhev2raw, int centL, int centH, TString name , TPDF* pdf, TFile* fout)
@@ -139,12 +154,14 @@ void fitPhoEv2(TH3F* hPhev2,TH3F* hPhev2raw, int centL, int centH, TString name 
     {
       h->SetBinContent(ibin+1,h->GetBinContent(ibin+1)*scale/(1.0*hraw->GetBinContent(ibin+1)));
     }
+    h->GetYaxis()->SetTitle("Counts");
+    h->GetXaxis()->SetTitle("#Delta#phi");
     h->Draw();
 
     h->Fit(fitfun);
     hPhEv2->SetBinContent(i+1,fitfun->GetParameter(1));
     hPhEv2->SetBinError(i+1,fitfun->GetParError(1));
-    drawLatex(0.2,0.8,Form("%0.1f<pt<%0.1f %d-%d", ptedge[i],ptedge[i+1],CentNum[centH+1],CentNum[centL]), 0.035);
+    drawLatex(0.2,0.88,Form("%0.1f<p_{T}<%0.1f GeV/c  %d-%d%s", ptedge[i],ptedge[i+1],CentNum[centH+1],CentNum[centL],"%"), 0.035);
     addpdf(pdf);
     delete h;
     delete hraw;
@@ -157,12 +174,12 @@ void fitPhoEv2(TH3F* hPhev2,TH3F* hPhev2raw, int centL, int centH, TString name 
   // hPhEv2->GetYaxis()->SetRangeUser(0,0.35);
   hPhEv2->Fit(f,"R");
 
-  drawLatex(0.2,0.8,Form("%s e v_{2} %d-%d \%",name.Data(),CentNum[centH+1],CentNum[centL]), 0.035);
+  drawLatex(0.2,0.8,Form("%s e v_{2} %d-%d%s",name.Data(),CentNum[centH+1],CentNum[centL],"%"), 0.035);
   addpdf(pdf);
   fout->cd();
   hPhEv2->Write();
   f->Write();
-  
+
 }
 void fitPhoEv2(TH3F* hPhev2, int centL, int centH, TString name, TPDF* pdf, TFile* fout)
 {
@@ -179,12 +196,14 @@ void fitPhoEv2(TH3F* hPhev2, int centL, int centH, TString name, TPDF* pdf, TFil
   for (int i=0;i<nbin;i++){
     TH1F* h= (TH1F*)hPhev2->ProjectionY("h", hPhev2->GetXaxis()->FindBin(ptedge[i]+1e-6), hPhev2->GetXaxis()->FindBin(ptedge[i+1]+1e-6),centLbin,centHbin);
     h->Rebin(5);
+    h->GetYaxis()->SetTitle("Counts");
+    h->GetXaxis()->SetTitle("#Delta#phi");
     h->Draw();
 
     h->Fit(fitfun);
     hPhEv2->SetBinContent(i+1,fitfun->GetParameter(1));
     hPhEv2->SetBinError(i+1,fitfun->GetParError(1));
-    drawLatex(0.2,0.8,Form("%0.1f<pt<%0.1f %d-%d", ptedge[i],ptedge[i+1],CentNum[centH+1],CentNum[centL]), 0.035);
+    drawLatex(0.2,0.88,Form("%0.1f<p_{T}<%0.1f GeV/c %d-%d%s", ptedge[i],ptedge[i+1],CentNum[centH+1],CentNum[centL],"%"), 0.035);
     addpdf(pdf);
   }
   TF1* f = new TF1(Form("f%s_%d_%d",name.Data() , centL,centH),"pol3",0.2,4);
@@ -195,7 +214,7 @@ void fitPhoEv2(TH3F* hPhev2, int centL, int centH, TString name, TPDF* pdf, TFil
   // hPhEv2->GetYaxis()->SetRangeUser(0,0.35);
   hPhEv2->Fit(f,"R");
 
-  drawLatex(0.2,0.8,Form("%s e v_{2} %d-%d \%", name.Data(),CentNum[centH+1],CentNum[centL]), 0.035);
+  drawLatex(0.2,0.8,Form("%s e v_{2} %d-%d%s", name.Data(),CentNum[centH+1],CentNum[centL],"%"), 0.035);
   addpdf(pdf);
   fout->cd();
   hPhEv2->Write();
@@ -221,7 +240,7 @@ void CalPhoEv2(TProfile2D* pPhev2_2d, int centL, int centH, TString name , TPDF*
   // f->FixParameter(6,1.3);
   pPhEv2->Fit(f);
   cout << " pt "<< pPhEv2->GetBinCenter(3)<<" "<<pPhEv2->GetBinEntries(3)<<endl;
-  drawLatex(0.2,0.8,Form("photonic e v_{2} %d-%d \%",CentNum[centH+1],CentNum[centL]), 0.035);
+  drawLatex(0.2,0.8,Form("photonic e v_{2} %d-%d%s",CentNum[centH+1],CentNum[centL],"%"), 0.035);
   addpdf(pdf);
   fout->cd();
   pPhEv2->Write();

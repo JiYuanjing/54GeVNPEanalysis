@@ -1,0 +1,332 @@
+#include "myStyle.h"
+void addpdf(TPDF* pdf,TCanvas* c)
+{
+  c->cd();
+  pdf->On();
+  c->Update();
+  pdf->NewPage();
+  pdf->Off();
+}
+
+void calculateEff(TH1* hpass,TH1* htotal)
+{
+   TEfficiency* eff = new TEfficiency(*hpass,*htotal); 
+   eff->SetStatisticOption(TEfficiency::kFAC);
+   for (int ib =1;ib<hpass->GetNbinsX();ib++)
+   {
+     if (hpass->GetBinCenter(ib)<0.2) continue;
+     hpass->SetBinContent(ib,eff->GetEfficiency(ib));
+     hpass->SetBinError(ib,(eff->GetEfficiencyErrorUp(ib)+eff->GetEfficiencyErrorLow(ib))*0.5);
+   } 
+}
+
+void checkTagEdistribution()
+{
+  SetMyStyle();
+  gStyle->SetPalette(1);
+  TCanvas* c1 = new TCanvas("c","c",1200,600);
+  TPDF* pdf = new TPDF("plots.pdf");
+  pdf->Off();
+  
+  TH1F* htest[10]; 
+  TH1F* htestMc[9]; 
+
+  TFile* file = new TFile("embeddQa_gamma_Apr22_5.root");
+
+  TH1F* htest[0] = (TH1F*)file->Get("htest");
+
+  for (int i=1;i<10;i++)
+  {
+     htest[i] = (TH1F*)file->Get(Form("htest%d",i));
+  }
+
+  TH1F* htestMc[0] = (TH1F*)file->Get("htestMc");
+    for (int i=1;i<9;i++)
+  {
+     htestMc[i] = (TH1F*)file->Get(Form("htest%dMc",i));
+  }
+  TLegend* leg = new TLegend(0.1,0.1,0.95,0.95);
+  leg->SetHeader("   \t\t\t         Cuts");
+  leg->SetTextSize(0.035);
+  c1->Divide(2,1);
+  c1->cd(1);
+  gPad->SetLogy();
+  TString tmp="";
+  int color[9] ={kRed,kOrange,kYellow+2,kGreen+2,kBlue,kCyan,kMagenta,kCyan+2,kBlack};
+  TString cuts[9] = { "pt>0","primary","#phi","#eta", "nHits", "gDca","First3Hit","","" };
+  for (int i=0;i<9;i++)
+  {
+    htest[i]->SetLineColor(color[i]); 
+    htest[i]->SetMarkerColor(color[i]); 
+    htest[i]->SetMarkerStyle(20); 
+    htest[i]->SetMarkerSize(0.8); 
+    htest[i]->SetLineWidth(2);
+    htest[i]->GetYaxis()->SetRangeUser(1e-1,1e5);
+    htest[i]->GetXaxis()->SetRangeUser(0,2);
+    htest[i]->GetXaxis()->SetTitle("rcTrack p_{T}");
+    htest[i]->Draw("psame");
+    if (i<7) tmp+=cuts[i];
+    if (i==7) tmp="Tag e";
+    if (i==8) tmp="Reco e";
+    leg->AddEntry(htest[i],tmp.Data(),"l");
+    tmp+=" && ";
+  } 
+  htest[8]->Draw("psame");
+  // for (int i=0;i<9;i++)
+  // {
+  //   htestMc[i]->SetLineColor(color[i]); 
+  //   htestMc[i]->SetMarkerColor(color[i]); 
+  //   htestMc[i]->SetMarkerStyle(20); 
+  //   htestMc[i]->SetMarkerSize(0.8); 
+  //   htestMc[i]->SetLineWidth(2);
+  //   htestMc[i]->GetYaxis()->SetRangeUser(1e-1,1e5);
+  //   htestMc[i]->GetXaxis()->SetRangeUser(0,2);
+  //   htestMc[i]->GetXaxis()->SetTitle("mcTrack p_{T}");
+  //   htestMc[i]->Draw("psame");
+  //   if (i<7) tmp+=cuts[i];
+  //   if (i==7) tmp="Tag e";
+  //   if (i==8) tmp="Reco e";
+  //   leg->AddEntry(htestMc[i],tmp.Data(),"l");
+  //   tmp+=" && ";
+  // }
+
+  TLine* l1 = new TLine(0.4,1e-1,0.4,1e5);
+  l1->SetLineStyle(2);
+  l1->Draw("same");
+  TLine* l2 = new TLine(0.65,1e-1,0.65,1e5);
+  l2->SetLineStyle(2);
+  l2->Draw("same");
+  TLine* l3 = new TLine(1,1e-1,1,1e5);
+  l3->SetLineStyle(2);
+  l3->Draw("same");
+  TLine* l4 = new TLine(1.2,1e-1,1.2,1e5);
+  l4->SetLineStyle(2);
+  l4->Draw("same");
+  TLine* l5 = new TLine(0.8,1e-1,0.8,1e5);
+  l5->SetLineStyle(2);
+  l5->Draw("same");
+  
+  c1->cd(2);
+  leg->Draw();  
+  addpdf(pdf,c1);
+  c1->SetLogy(0);
+
+  c1->Clear();
+  // TCanvas* c1 = new TCanvas("c1","c1",1200,600);
+  c1->Divide(2,1);
+  c1->cd(1);
+  TH2F* hTagEcut = (TH2F*)file->Get("hTagElectronPassCut");
+  TH1F* h1TagEcut = (TH1F*)hTagEcut->ProjectionX("hTagEcut", 3, 9);
+  TH2F* hTagE = (TH2F*)file->Get("hTagElectron");
+  TH1F* h1TagE = (TH1F*)hTagE->ProjectionX("hTagE", 3, 9);
+
+  TH1F* hrest = (TH1F*)file->Get("htest9");
+  hrest->Rebin();
+  TH1F* hrestcut = (TH1F*)file->Get("htest10");
+  hrestcut->Rebin();
+
+  h1TagEcut->Rebin();
+  h1TagE->Rebin();
+  calculateEff(h1TagEcut,h1TagE);
+  // h1TagEcut->Divide(h1TagE);
+  h1TagEcut->GetXaxis()->SetTitle("p_{T}");
+  h1TagEcut->GetYaxis()->SetTitle("Eff.");
+  h1TagEcut->SetMarkerColor(kBlack);
+  h1TagEcut->SetMarkerSize(1.2);
+  h1TagEcut->SetMarkerStyle(20);
+  h1TagEcut->GetYaxis()->SetRangeUser(0,0.6);
+  h1TagEcut->Draw();
+
+  // htestMc[8]->Add(h1TagEcut,hrestcut,1,-1);
+  // htestMc[7]->Add(h1TagE,hrest,1,-1);
+  htestMc[8]->Rebin();
+  htestMc[7]->Rebin();
+   
+  // htestMc[8]->Divide(htestMc[7]);
+  calculateEff(htestMc[8],htestMc[7]); 
+  htestMc[8]->SetMarkerColor(kRed);
+  htestMc[8]->SetLineColor(kRed);
+  htestMc[8]->SetMarkerSize(1.2);
+  htestMc[8]->SetMarkerStyle(24);
+  htestMc[8]->Draw("psame");
+
+  calculateEff(hrestcut,hrest);
+  // hrestcut->Divide(hrest);
+  hrestcut->SetMarkerColor(kBlue);
+  hrestcut->SetLineColor(kBlue);
+  hrestcut->SetMarkerSize(1.2);
+  hrestcut->SetMarkerStyle(22);
+  for (int ib=0;ib<hrestcut->GetNbinsX();ib++)
+  {
+    if (hrestcut->GetBinCenter(ib)>0.8) continue;
+    hrestcut->SetBinError(ib,0);
+    hrestcut->SetBinContent(ib,0);
+  }
+  hrestcut->Draw("same");
+  TLegend* leff = new TLegend(0.4,0.2,0.85,0.4);
+  leff->AddEntry(hrestcut,"Mom res>0.06","p");
+  leff->AddEntry(htestMc[8],"Mom res<0.06","p");
+  leff->AddEntry(h1TagEcut,"total #gamma#rightarrow e","p");
+  leff->Draw();
+  // addpdf(pdf,c1);
+
+  c1->cd(2); 
+  gPad->SetLogy();
+  h1TagE->Draw();
+  h1TagE->GetXaxis()->SetTitle("primary p_{T}");
+  h1TagE->GetYaxis()->SetTitle("Counts");
+  h1TagE->GetXaxis()->SetRangeUser(0,3);
+  hrest->SetMarkerColor(kBlue);
+  hrest->SetMarkerStyle(22);
+  hrest->GetXaxis()->SetRangeUser(0,3);
+  hrest->Draw("same");
+  htestMc[7]->SetMarkerColor(kRed);
+  htestMc[7]->SetMarkerStyle(24);
+  htestMc[7]->Draw("same");
+  TLegend* lsp = new TLegend(0.4,0.68,0.85,0.88);
+  lsp->AddEntry(hrest,"Mom res>0.06","p");
+  lsp->AddEntry(htestMc[7],"Mom res<0.06","p");
+  lsp->AddEntry(h1TagE,"total #gamma#rightarrow e","p");
+  lsp->Draw();
+  addpdf(pdf,c1);
+  gPad->SetLogy(0);
+
+  c1->Clear();
+  c1->Divide(2,1);
+  c1->cd(1);
+  TH2F* hprphoto = (TH2F*)file->Get("hPrPhoton");
+  TH2F* hphoto = (TH2F*)file->Get("hPi0Pt");
+  TH1F* h1prphoto = (TH1F*)hprphoto->ProjectionX("h1prphoto");
+  TH1F* h1photo = (TH1F*)hphoto->ProjectionX("h1photo");
+
+  // h1photo->SetLineColor(kBlue);
+  // h1photo->SetMarkerColor(kBlue);
+  // h1photo->SetMarkerSize(1.2);
+  // h1photo->SetMarkerStyle(20);
+  //
+  // c1->SetLogy();
+  // h1photo->Draw("p");
+  // h1prphoto->SetLineColor(kRed);
+  // h1prphoto->SetMarkerColor(kRed);
+  // h1prphoto->SetMarkerSize(1.2);
+  // h1prphoto->SetMarkerStyle(20);
+  // h1prphoto->Draw("psame");
+  // // addpdf(pdf,c1);
+  TH3F* h3eta = (TH3F*)file->Get("hTagEGammaEta");
+  h3eta->GetZaxis()->SetRangeUser( 0.8, 4);
+  TH2F* h2eta = (TH2F*)h3eta->Project3D("yx");
+  h2eta->GetXaxis()->SetTitle("Electron #eta");
+  h2eta->GetYaxis()->SetTitle("Gamma #eta");
+  // gPad->SetLogz();
+  h2eta->Draw("colz");
+
+  c1->cd(2);
+  h1prphoto->Divide(h1photo);
+  h1prphoto->GetYaxis()->SetTitle("#gamma from PV/All Mc #gamma");
+  h1prphoto->GetXaxis()->SetTitle("p_{T}(GeV)");
+  h1prphoto->Draw();
+  gPad->SetLogy(0);
+  addpdf(pdf,c1);
+
+  c1->cd();
+  c1->Divide(2,1);
+
+  TH3F* hCheckVtx[2];
+  hCheckVtx[0] = (TH3F*)file->Get("hCheckVtx"); 
+  hCheckVtx[1] = (TH3F*)file->Get("hCheckVtx_2"); 
+
+  TH2F* hCheckVtx_xy[2];
+  for (int i=0;i<2;i++) 
+  {
+    c->cd(i+1);
+    gPad->SetLogz();
+    gPad->SetLogy(0); 
+    hCheckVtx_xy[i] = (TH2F*)hCheckVtx[i]->Project3D("yx");
+    hCheckVtx_xy[i]->Draw("colz");
+    if (i==0) drawLatex(0.6, 0.8, "Mom res>0.06");
+    if (i==1) drawLatex(0.6, 0.8, "Mom res<0.06");
+  }
+  addpdf(pdf,c1);
+
+  TH2F* hCheckVtx_yz[2];
+  for (int i=0;i<2;i++)
+  {
+    c->cd(i+1);
+    gPad->SetLogz();
+    gPad->SetLogy(0); 
+
+    hCheckVtx_yz[i] = (TH2F*)hCheckVtx[i]->Project3D("yz");
+    hCheckVtx_yz[i] = hCheckVtx_yz[i]->Draw("colz");
+    if (i==0) drawLatex(0.6, 0.8, "Mom res>0.06");
+    if (i==1) drawLatex(0.6, 0.8, "Mom res<0.06");
+  }
+  addpdf(pdf,c1);
+
+  TH2F* hCheckVtx_xz[2];
+  for (int i=0;i<2;i++)
+  {
+    c->cd(i+1);
+    gPad->SetLogz();
+    gPad->SetLogy(0); 
+
+    hCheckVtx_xz[i] = (TH2F*)hCheckVtx[i]->Project3D("xz");
+    hCheckVtx_xz[i]->Draw("colz");
+    if (i==0) drawLatex(0.6, 0.8, "Mom res>0.06");
+    if (i==1) drawLatex(0.6, 0.8, "Mom res<0.06");
+  }
+  addpdf(pdf,c1);
+
+  c1->cd(1);
+  gPad->SetLogz();
+  TH2F* hMom= (TH2F*)file->Get("hMomResolution_pr"); 
+  hMom->SetTitle("Mom res. primary p_{T}");
+  hMom->Draw("colz");
+  // addpdf(pdf,c1);
+
+  c1->cd(2);
+  gPad->SetLogz();
+  TH2F* hCheckMom = (TH2F*)file->Get("hCheckMom"); 
+  hCheckMom->SetTitle("Mom res. global p_{T}");
+  hCheckMom->GetXaxis()->SetRangeUser(0,2.5);
+  hCheckMom->GetZaxis()->SetRangeUser(5e-5,2e2);
+  hCheckMom->Draw("colz");
+  addpdf(pdf,c1);
+
+  // c1->Clear();
+  // c1->Divide(2,1);
+  // c1->cd(1);
+  // TH2F* hChecknCom = (TH2F*)file->Get("hChecknCom");
+  // hChecknCom_x = (TH2F*)hChecknCom->ProjectionX("hChecknCom_x",hChecknCom->GetYaxis()->FindBin(0.8),hChecknCom->GetYaxis()->FindBin(2));
+  // TH2F* hChecknComAll = (TH2F*)file->Get("hChecknComAll");
+  // hChecknComAll_x = (TH2F*)hChecknComAll->ProjectionX("hChecknComAll_x",hChecknCom->GetYaxis()->FindBin(0.8),hChecknCom->GetYaxis()->FindBin(2));
+  // hChecknComAll_x->Scale(1./hChecknComAll_x->Integral()/hChecknComAll_x->GetBinWidth(1));
+  // hChecknCom_x->Scale(1./hChecknCom_x->Integral()/hChecknCom_x->GetBinWidth(1));
+  // hChecknComAll_x->Draw();
+  // hChecknCom_x->SetLineColor(kRed);
+  // hChecknCom_x->Draw("same");
+  // drawLatex(0.2,0.88,"Normalized nCom");
+  // TLegend* lncom = new TLegend(0.2,0.65,0.4,0.83);
+  // lncom->AddEntry( hChecknCom_x,"Mom Res>0.06","l" );
+  // lncom->AddEntry(hChecknComAll_x ,"all rctrack","l");
+  // lncom->Draw();
+  // addpdf(pdf,c1);
+
+  c1->Clear();
+  c1->Divide(2,1);
+  c1->cd(1);
+  gPad->SetLogz();
+  TH2F* hEtaPhi = (TH2F*)file->Get("hCheckEtaPhi");  //res>0.06
+  TH2F* hEtaPhi_2 = (TH2F*)file->Get("hCheckEtaPhi_2"); //res<0.06
+  hEtaPhi->Draw("colz");
+  drawLatex(0.2,0.2,"Mom res>0.06");
+
+  c1->cd(2);
+  gPad->SetLogz();
+  hEtaPhi_2->Draw("colz");
+  drawLatex(0.2,0.2,"Mom res<0.06");
+  
+  addpdf(pdf,c1); 
+
+  pdf->On();
+  pdf->Close();
+}

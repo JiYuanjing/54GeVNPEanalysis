@@ -72,16 +72,19 @@ void StPicoPionMaker::initHists(){
   // hnSigE_e = new TH2F("hnSigE_e","photonic elecron;p(GeV/c);nSigE", 480 ,0,6, 400,-5,5);  //select PE e
   // hnSigE_e_LS = new TH2F("hnSigE_e_ls","photonic elecron like sign;p(GeV/c);nSigE", 480, 0,6, 400,-5,5);
   // hnSigE_p = new TH2F("hnSigE_p","proton with tof pid;p(GeV/c);nSigE", 480 ,0,6, 1000,-10,15);  //select tof p
-  hnSigE_pi = new TH3F("hnSigE_pi","pion from Ks;p(GeV/c);nSigE;Centrality", 480,0,6,75,-10,5,10,-0.5,8.5);  //tof pi
-  hnSigE_pi_LS = new TH3F("hnSigE_pi_ls","pion from Ks like sign;p(GeV/c);nSigE;Centrality", 480, 0,6, 75,-10,5,10,-0.5,8.5);
+  hnSigE_pi = new TH3F("hnSigE_pi","pion from Ks;p(GeV/c);nSigE;Centrality", 400,0,4,167,-10,5,9,-0.5,8.5);  //tof pi
+  hnSigE_pi_pt = new TH3F("hnSigE_pi_pt","pion from Ks;p(GeV/c);nSigE;Centrality", 400,0,4,167,-10,5,9,-0.5,8.5);  //tof pi
+  hnSigE_pi_LS = new TH3F("hnSigE_pi_ls","pion from Ks like sign;p(GeV/c);nSigE;Centrality", 400, 0, 4, 167, -10, 5, 9, -0.5, 8.5);
+  hnSigE_pi_LS_pt = new TH3F("hnSigE_pi_ls_pt","pion from Ks like sign;p(GeV/c);nSigE;Centrality", 400, 0, 4, 167, -10, 5, 9, -0.5, 8.5);
   // hnSigE_k = new TH2F("hnSigE_k","kaon with tof pid;p(GeV/c);nSigE", 480 ,0,6, 1000,-10,15);
   // hnSigE_Cut = new TH2F("hnSigE_Cut","elecron after pid cut;p(GeV/c);nSigE", 480 ,0,6, 400,-5,5);
   // hnSigE_tof = new TH2F("hnSigE_tof","elecron with tof only;p(GeV/c);nSigE", 480,0,6, 1000,-10,15);
-  hnSigE_pi_tof = new TH3F("hnSigE_pi_tof","pion with tof only;p(GeV/c);nSigE;Centrality", 480,0,6, 40,-10,10,10,-0.5,8.5);
+  hnSigE_pi_tof = new TH3F("hnSigE_pi_tof","pion with tof only;p(GeV/c);nSigE;Centrality", 400,0,4, 167,-10,5,9,-0.5,8.5);
+  hnSigE_pi_tof_pt = new TH3F("hnSigE_pi_tof_pt","pion with tof only;p(GeV/c);nSigE;Centrality", 400,0,4, 167,-10,5,9,-0.5,8.5);
   // hincEptCent = new TH2F("hincEptCent","inclusive e;p_{T}(GeV/c);cent", 50,0,5,9,-0.5,8.5);
   // hePtvsP = new TH2F("hePtvsP","hePtvsP",200,0,10,200,0,10);
-  hKs = new TH3F("hKs","M#pi#pi;M#pi#pi;partner #pi p_{T};Centrality",150,0.45,0.55,100,0.2,10,10,-0.5,8.5);
-  hKs_LS = new TH3F("hKs_LS","Mpipi like sign;Mpipi;partner e p_{T};Centrality",150,0.45,0.55,100,0.2,10,10,-0.5,8.5);
+  hKs = new TH3F("hKs","M#pi#pi;M#pi#pi;partner #pi p_{T};Centrality",150,0.45,0.55,100,0.2,10,9,-0.5,8.5);
+  hKs_LS = new TH3F("hKs_LS","Mpipi like sign;Mpipi;partner e p_{T};Centrality",150,0.45,0.55,100,0.2,10,9,-0.5,8.5);
   // hV0 = new TH3F("hV0","hV0;x(cm);y(cm);z(cm)",300,-60,60,300,-60,60,500,-100,100);
   // hV0_LS = new TH3F("hV0_LS","hV0_LS;x(cm);y(cm);z(cm)",300,-60,60,300,-60,60,500,-100,100);
   hcent = new TH1F("hcent","hcent",9,-0.5,8.5);
@@ -102,14 +105,17 @@ Int_t StPicoPionMaker::Finish()
   // hnSigE_e->Write();  //select PE e
   // hnSigE_p->Write();  //select tof p
   hnSigE_pi->Write();  //Ks pi
+  hnSigE_pi_pt->Write();  //Ks pi
   // hnSigE_k->Write();
   // hnSigE_Cut->Write();
   // hnSigE_tof->Write();
+  hnSigE_pi_tof_pt->Write();
   hnSigE_pi_tof->Write();
   // hePtvsP->Write();
   hKs_LS->Write();
   hKs->Write();
   hnSigE_pi_LS->Write();
+  hnSigE_pi_LS_pt->Write();
   // hV0->Write();
   // hV0_LS->Write();
   hcent->Write();
@@ -184,7 +190,7 @@ bool StPicoPionMaker::ProcessPicoEvent()
       bool isprimary = pe_1->isPrimary();
       if (!isprimary) continue;
       bool goodtrack = isGoodTrack(pe_1,pe_1->gDCA(mVx,mVy,mVz));
-      if (!goodtrack) continue;
+      if (!goodtrack && fabs(pe_1->gDCA(mVz,mVy,mVz))>anaCuts::Dca) continue;
       if (pe_1->gDCA(mVx,mVy,mVz)<anaCuts::minDca) continue;
       StThreeVectorF mom = pe_1->pMom(); //primary momentum
       // StThreeVectorF mom = pe_1->gMom(); //momentum
@@ -195,11 +201,11 @@ bool StPicoPionMaker::ProcessPicoEvent()
       // hnSigEvsP->Fill(mom.mag(),pe_1->nSigmaElectron());
 
       Float_t nSigPi1 = pe_1->nSigmaElectron();
-      // bool istofpi = mom.mag()>1.5?true:(tofmatch?isTofPion(pe_1,beta):false);  //tof at pt<1.5 and no pid at high pt 
-      bool istofpi = tofmatch?isTofPion(pe_1,beta):false;  
+      bool istofpi = mom.mag()>1.5?true:(tofmatch?isTofPion(pe_1,beta):false);  //tof at pt<1.5 and no pid at high pt 
       bool isPi1 = isfirstPion(pe_1,tofmatch,beta);
       //Fill histograms 
       if (istofpi) hnSigE_pi_tof->Fill(mom.mag(),nSigPi1,mCent,weight); 
+      if (istofpi) hnSigE_pi_tof_pt->Fill(mom.perp(),nSigPi1,mCent,weight); 
 
       if (isPi1){
         for (int itrack2=0;itrack2<nTracks;itrack2++){
@@ -252,9 +258,11 @@ bool StPicoPionMaker::ProcessPicoEvent()
             if (mother.m() > 0.492 && mother.m() < 0.503) MassWindow = kTRUE; 
             if (unlike && MassWindow){
                 hnSigE_pi->Fill(pe_2->gMom().mag(),pe_2->nSigmaElectron(),mCent,weight);
+                hnSigE_pi_pt->Fill(pe_2->gMom().perp(),pe_2->nSigmaElectron(),mCent,weight);
               }
             else if ((!unlike) && MassWindow){
                 hnSigE_pi_LS->Fill(pe_2->gMom().mag(),pe_2->nSigmaElectron(),mCent,weight);
+                hnSigE_pi_LS_pt->Fill(pe_2->gMom().perp(),pe_2->nSigmaElectron(),mCent,weight);
               }
               if (unlike) hKs->Fill(mother.m(),pe_2->gMom().perp(),mCent,weight); 
               else hKs_LS->Fill(mother.m(), pe_2->gMom().perp(),mCent,weight); 
@@ -277,12 +285,14 @@ bool StPicoPionMaker::isGoodTrigger(StPicoEvent const* const picoEvent) const
 bool StPicoPionMaker::isGoodTrack(StPicoTrack const* trk, float dca) const
 {
   // StThreeVectorF const vtx = mPicoDstMaker->picoDst()->event()->primaryVertex();
-  return trk->gPt() > anaCuts::GPt && fabs(trk->nHitsFit()) >= anaCuts::NHitsFit && 
+  return trk->gPt() > anaCuts::GPt &&
+    fabs(trk->nHitsFit()) >= anaCuts::NHitsFit && 
     fabs(trk->gMom().pseudoRapidity())<anaCuts::Eta &&
-    fabs(trk->nHitsDedx())>=anaCuts::NHitsDedx && fabs(dca)<=anaCuts::Dca &&
+    fabs(trk->nHitsDedx())>=anaCuts::NHitsDedx &&
+    // fabs(dca)<=anaCuts::Dca &&
     trk->nHitsFit()/trk->nHitsMax() >=anaCuts::NHitsFit2Poss;
-  // fabs(trk->nHitsDedx())>=anaCuts::NHitsDedx &&
-  // fabs( trk->gDCA(vtx.x() , vtx.y(), vtx.z() )) <= anaCuts::Dca;
+    // fabs(trk->nHitsDedx())>=anaCuts::NHitsDedx &&
+    // fabs( trk->gDCA(vtx.x() , vtx.y(), vtx.z() )) <= anaCuts::Dca;
 }
 bool StPicoPionMaker::isGoodQaTrack(StPicoTrack const* const trk) const
 {
@@ -363,7 +373,7 @@ bool StPicoPionMaker::issecondPion(StPicoTrack const * const trk, bool tofmatch,
   StThreeVectorF mom = trk->gMom(); 
   float ptot = mom.mag();
   // bool isTPCPion= trk->nSigmaElectron()<4 && trk->nSigmaElectron()>-10; //almost have no cut
-  bool isTPCPion= fabs(trk->nSigmaPion())<5; //almost have no cut
+  bool isTPCPion= fabs(trk->nSigmaPion())<4; //almost have no cut
   float beta_pi = ptot / sqrt(ptot * ptot + M_PION_PLUS * M_PION_PLUS);
   bool isTOFPion = tofmatch?fabs(1./beta-1./beta_pi)<anaCuts::piTof2:false; //very loose tof cut 
   return isTOFPion && isTPCPion;
@@ -420,7 +430,7 @@ bool StPicoPionMaker::isTofPion(StPicoTrack const * const trk, float beta) const
   StThreeVectorF mom = trk->gMom(); 
   double ptot = mom.mag();
   float beta_pi = ptot / sqrt(ptot * ptot + M_PION_PLUS * M_PION_PLUS);
-  return fabs(1. / beta - 1. / beta_pi) < anaCuts::piTof ;
+  return fabs(1 / beta - 1 / beta_pi) < anaCuts::piTof ;
 }
 bool StPicoPionMaker::isTofProton(StPicoTrack const * const trk,  float beta) const
 {

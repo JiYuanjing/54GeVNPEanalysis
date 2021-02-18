@@ -1,0 +1,16 @@
+double pt_omg_0_eta005_5th[5]={1.36122,1.99832,2.42913,2.83896,3.42871,};
+double ptErr_omg_0_eta005_5th[5]={0,0,0,0,0,};
+double vnSig_omg_0_eta005_5th[5]={0.0681893,0.099832,0.125884,0.153638,0.172703,};
+double vnSigErr_omg_0_eta005_5th[5]={0.00711309,0.00952507,0.0110411,0.0208864,0.0187904,};
+double pt_omg_1_eta005_5th[3]={1.27762,2.23164,3.41254,};
+double ptErr_omg_1_eta005_5th[3]={0,0,0,};
+double vnSig_omg_1_eta005_5th[3]={0.0086174,0.0427604,0.120483,};
+double vnSigErr_omg_1_eta005_5th[3]={0.0181975,0.0135271,0.036209,};
+double pt_omg_2_eta005_5th[3]={1.28971,2.24139,3.41927,};
+double ptErr_omg_2_eta005_5th[3]={0,0,0,};
+double vnSig_omg_2_eta005_5th[3]={0.0841668,0.152582,0.186535,};
+double vnSigErr_omg_2_eta005_5th[3]={0.00734321,0.00605524,0.0184273,};
+double pt_omg_3_eta005_5th[3]={1.29648,2.2164,3.43355,};
+double ptErr_omg_3_eta005_5th[3]={0,0,0,};
+double vnSig_omg_3_eta005_5th[3]={0.126556,0.139276,0.251946,};
+double vnSigErr_omg_3_eta005_5th[3]={0.0248102,0.0230672,0.0987633,};
