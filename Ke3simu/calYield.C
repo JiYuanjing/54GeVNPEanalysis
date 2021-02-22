@@ -1,3 +1,4 @@
+///run with root6
 #include "sPhenixStyle.h"
 
 void scale(TH1D* h, double etarange, double branch, double nevents);
@@ -30,21 +31,21 @@ void calYield()
   TFile* fout;
   fout = new TFile( "foutK.root", "recreate");
   calspectra("hKaonSpec","Kplus.root",fout,"Kaon");
-  calspectra("hElectronSpecDcaCut","Kplus.root",fout, "KplusDcaCut");
+  calspectra("hElectronSpecHitCut","Kplus.root",fout, "KplusDcaCut");
   calspectra("hElectronSpecNoCut","Kplus.root",fout, "KplusNoCut");
-  calspectra("hElectronSpecDLCut","KplusTest.root",fout, "KplusDLCut");
-  /* calspectra("hElectronSpecDcaCut","K0L.root",fout, "K0LDcaCut"); */
-  calspectra("hElectronSpecDcaCut","Klong.root",fout, "K0LDcaCut");
+  calspectra("hElectronSpecDLCut","Kplus.root",fout, "KplusDLCut");
+  /* calspectra("hElectronSpecDcaCut","KLtest.root",fout, "K0LDcaCut"); */
+  calspectra("hElectronSpecHitCut","Klong.root",fout, "K0LDcaCut");
   calspectra("hElectronSpecNoCut","Klong.root",fout, "K0LNoCut");
-  /* calspectra("hElectronSpecDcaCut","KL_test.root",fout, "K0LDcaCut"); */
-  calspectra("hElectronSpecDcaCut","K0s.root",fout, "K0sDcaCut");
+  /* calspectra("hElectronSpecNoCut","KLtest.root",fout, "K0LNoCut"); */
+  calspectra("hElectronSpecHitCut","K0s.root",fout, "K0sDcaCut");
   calspectra("hElectronSpecNoCut","K0s.root",fout, "K0sNoCut");
   fout->Close();
 
   checkSpectra();
   calD2e();
   calKe3Frac();
-  /* projV2(); */
+  projV2();
 }
 
 void calspectra(TString histname, TString infilename,  TFile* fout, TString name)
@@ -159,7 +160,7 @@ void calKe3Frac()
   TH1F* hEffkpDl = (TH1F*)hKplusCut->Clone("hKplusDLEff");
   hEffkpDl->SetDirectory(0);
   hEffkpDl->Divide(hKplusDLCut);
-  hEffkpDl->Scale(0.1);
+  hEffkpDl->Scale(0.1*0.8);
   hEffkpDl->GetYaxis()->SetTitle("K^{+}#rightarrowe |gDca|<1.5 / Decay in TPC");
   hEffkpDl->SetMarkerColor(kViolet);
   hEffkpDl->SetMarkerStyle(29);
@@ -181,7 +182,7 @@ void calKe3Frac()
   legEff->AddEntry(hEff, "K^{+}", "lp");
   legEff->AddEntry(hEffkl, "K^{0}_{L}", "lp");
   legEff->AddEntry(hEffks, "K^{0}_{S} #times 0.01", "lp");
-  legEff->AddEntry(hEffkpDl, "K^{+} decay in TPC #times 0.1", "lp");
+  legEff->AddEntry(hEffkpDl, "K^{+} decay in TPC #times 0.8 #times 0.1", "lp");
   legEff->Draw();
   gPad->SaveAs("plot/Eff.pdf");
 
@@ -224,6 +225,7 @@ void calKe3Frac()
   leg->AddEntry( hK0sCut,"K^{0}_{s}","lep" );
   leg->Draw();
   gPad->SaveAs("plot/ratio.pdf");
+  ratio->SaveAs("Ke3ratio.root");
 
   TH1F* htest = (TH1F*)hK0LCut->Clone("htest");
   htest->Divide(hKplusCut);
@@ -246,9 +248,17 @@ void checkSpectra()
   gPad->SetLogy();
 
   hKaon->Draw();
+  hKaon->GetXaxis()->SetTitle("p_{T} (GeV/c)");
   hKaon->GetYaxis()->SetTitle("d^{2}N/2#pip_{T}dydp_{T}");
+  hKaon->GetYaxis()->SetRangeUser(1e-4,3e1);
   g->Draw("same p");
   drawLatex(0.25, 0.25, "Kaon 0-60%", 0.045);
+
+  TLegend* leg = new TLegend(0.7,0.75,0.88,0.88);
+  leg->AddEntry(g, "data","lp" );
+  leg->AddEntry(hKaon,"Sim.","lp");
+  leg->Draw();
+
   gPad->SaveAs("plot/checkspectra.pdf");
   gPad->SetLogy(0);
 
@@ -302,6 +312,7 @@ void projV2()
   pKaonV2->Add(pKplus, pK0L, 0.05*2, 0.4);
   pKaonV2->Add(pK0s, 7e-4);
   pKaonV2->SetMarkerStyle(kFullSquare);
+  pKaonV2->GetXaxis()->SetRangeUser(0,2.5);
   pKaonV2->Draw("same");
 
   TF1* fun = new TF1("fitfun", fitfun, 0, 4, 3);
@@ -310,7 +321,7 @@ void projV2()
   fun->SetParameters(1,1,1);
   pKaonV2->Fit(fun);
 
-  TLegend* legv2 = new TLegend(0.7,0.7,0.88,0.92);
+  TLegend* legv2 = new TLegend(0.2,0.65,0.48,0.92);
   legv2->AddEntry(pKplus, "K^{+}#rightarrowe", "lp");
   legv2->AddEntry(pK0L, "K^{0}_{L}#rightarrowe", "lp");
   legv2->AddEntry(pK0s, "K^{0}_{S}#rightarrowe", "lp");

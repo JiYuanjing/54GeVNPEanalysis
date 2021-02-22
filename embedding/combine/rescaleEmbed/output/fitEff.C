@@ -40,11 +40,11 @@ void fitEff()
   hRecoEff->Fit(fitfun,"R");
   double par[12];
   /* TF1* fitfun2 = new TF1("fitfun2",fitEffFun2,0,4,12); */
-  TF1* fitfun2 = new TF1("fitfun2",fitEffFun2,0,4,12);
+  TF1* fitfun2 = new TF1("fitfun2",fitEffFun2,0,2,12);
   /* fitfun->GetParameters(par); */
   /* fitfun2->SetParameters(par); */
-  hRecoEff->Fit(fitfun2);
-  hRecoEff->Fit(fitfun2);
+  hRecoEff->Fit(fitfun2,"R+");
+  hRecoEff->Fit(fitfun2,"R+");
   fitfun2->SetNpx(10000);
   // return;
   int const Npx=1000;

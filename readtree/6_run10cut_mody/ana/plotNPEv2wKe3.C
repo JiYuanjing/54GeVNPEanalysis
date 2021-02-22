@@ -7,7 +7,7 @@ void drawLatex(double x,double y,const char* txt,double size)
   lat.SetTextSize(size);
   lat.DrawLatexNDC ( x, y, txt);
 }
-void plotNPEv2()
+void plotNPEv2wKe3()
 {
   gROOT->Reset();
 
@@ -39,11 +39,20 @@ void plotNPEv2()
   TH1F* heratio = (TH1F*)file->Get("heratio");
   heratio->SetDirectory(0);  
 
+  TFile* Ke3v2 = new TFile("embed/fKaonV2.root");
+  TProfile*  pKaonV2 = (TProfile*)Ke3v2->Get("pKaonV2");
+  pKaonV2->SetDirectory(0);
+  Ke3v2->Close();
+  TFile* Ke3 = new TFile("embed/Ke3ratio.root");
+  TH1F* hKe3 = (TH1F*)Ke3->Get("hRatio");
+  hKe3->SetDirectory(0);
+  Ke3->Close();
+
   int  nbins = HFv2stat->GetNbinsX();
-  double x[50],xwidth[50] , y[50], syserr[50],staterr[50] ,tmpx,tmpy,tmperr,tmpstat,tmppsys,tmpeffsys;
+  double x[50],xwidth[50] ,ynoKe3cor[50], y[50], syserr[50],staterr[50] ,tmpx,tmpy,tmperr,tmpstat,tmppsys,tmpeffsys;
   double  s2b[50], s2berr[50],s2bstaterr[50] ,tmpx,tmps2b,tmps2berr,tmps2bstat, tmps2bstateff, tmps2bpsys, tmps2beffsys,eratio[50],eratioerr[50];
   int npoints=0;
-  
+  double Kv2=0,Kratio=0;
   
   cout <<"pT"<< " "<<"v2"<<" "<<"stat"<<" "<<"sys"<< endl;
   for (int ib=0;ib<nbins;ib++)
@@ -66,23 +75,25 @@ void plotNPEv2()
     tmps2berr = sqrt(tmps2bpsys*tmps2bpsys+tmps2berr*tmps2berr+tmps2beffsys*tmps2beffsys);
 
     // if (tmpy<-0.05 || tmpx<0.35|| (tmpx<1.15&&tmpx>0.85) || tmperr>0.1 ) 
-    /* if (tmpy<-0.05 || (tmpx<0.65&&tmpx>0.4)|| (tmpx<1.2&&tmpx>0.7) || tmperr>0.1 || tmpx>3)  */
-    if (tmpy<-0.05 || (tmpx<0.65&&tmpx>0.4)|| (tmpx<1.1&&tmpx>0.7) || tmperr>1 || tmpx>3) 
+    if (tmpy<-0.05 || (tmpx<0.65&&tmpx>0.4)|| (tmpx<1.15&&tmpx>0.7) || tmperr>0.1 || tmpx>3) 
     { continue; }
     else 
     { 
-      y[npoints] = tmpy;
+      ynoKe3cor[npoints] = tmpy;
       x[npoints] = tmpx;
       syserr[npoints] = tmperr;
       staterr[npoints] = tmpstat;
       xwidth[npoints] = 0.5*HFv2sys->GetBinWidth(ib+1);
+      Kratio = hKe3->GetBinContent(hKe3->GetXaxis()->FindBin(tmpx));
+      Kv2 = pKaonV2->GetBinContent(pKaonV2->GetXaxis()->FindBin(tmpx));
+      y[npoints] = (1+Kratio)*tmpy - Kratio*Kv2;
      
       s2b[npoints] = tmps2b; 
       s2berr[npoints] = tmps2berr; 
       s2bstaterr[npoints] = tmps2bstat; 
       eratio[npoints] = heratio->GetBinContent(ib+1);
       eratioerr[npoints] = heratiosys->GetBinContent(ib+1);
-      cout <<tmpx<< " "<<tmpy<<" "<<tmpstat<<" "<<tmperr << endl;
+      cout <<tmpx<< " final:"<<y[npoints]<<" before correct:"<<tmpy<<" kaonv2:"<< Kv2<<" kaon fraction:"<<Kratio<<" staterr:"<<tmpstat<<" sys:"<<tmperr << endl;
       npoints++; 
     }
   }
@@ -95,6 +106,8 @@ void plotNPEv2()
   g54S2Bsys->SetName("g54S2Bsys");
   TGraphErrors* g54S2B = new TGraphErrors(npoints ,x ,s2b ,0,s2bstaterr );
   g54S2B->SetName("g54S2Bstat");
+
+  TGraph* gBefore = new TGraph(npoints,x,ynoKe3cor);
 
   TFile* fRapp = new TFile("model/gRappNPE62.root");
   TGraph* gRappNPE62 = (TGraph*)fRapp->Get("gRappNPE62");
@@ -136,8 +149,8 @@ void plotNPEv2()
 
    double x1 = 0.0;
    double x2 = 2.0;
-   double y1 = -0.07;
-   double y2 = 0.23;
+   double y1 = -0.0;
+   double y2 = 0.18;
    TH1D *d0 = new TH1D("d0","",1,x1,x2);
    d0->SetMinimum(y1);
    d0->SetMaximum(y2);
@@ -150,7 +163,7 @@ void plotNPEv2()
    d0->GetXaxis()->SetLabelFont(42);
    d0->GetXaxis()->SetTitleFont(42);
    d0->GetYaxis()->SetNdivisions(205);
-   d0->GetYaxis()->SetTitle("HF electron v_{2}");
+   d0->GetYaxis()->SetTitle("v_{2}");
    d0->GetYaxis()->SetTitleOffset(1.0);
    d0->GetYaxis()->SetTitleSize(0.06);
    d0->GetYaxis()->SetLabelOffset(0.005);
@@ -166,14 +179,19 @@ void plotNPEv2()
    drawline(x1,y1,x1,y2,1,1,3);
    drawline(x2,y1,x2,y2,1,1,3);
 
-   drawGraphWithSys(gSTAR200, gSTAR200sys, 1, 30, 2.1);
-   drawGraphWithSys(gSTAR62, gSTAR62sys, 1, 24, 1.7);
+   /* drawGraphWithSys(gSTAR200, gSTAR200sys, 1, 30, 2.1); */
+   /* drawGraphWithSys(gSTAR62, gSTAR62sys, 1, 24, 1.7); */
    drawGraphWithSys(gSTAR54, gSTAR54sys, kBlue, 20, 1.8);
+   gBefore->SetMarkerColor(kGray+2);
+   gBefore->SetMarkerSize(2);
+   gBefore->SetMarkerStyle(kFullStar);
+   gBefore->Draw("psame");
 
-   TLatex *tex = new TLatex(2.0, 0.15, "Au+Au, 0-60%");
+   TLatex *tex = new TLatex(1.0, 0.15, "Au+Au 54.4 GeV, 0-60%");
    tex->SetTextFont(42);
    tex->SetTextSize(0.05);
    tex->Draw("same");
+   pKaonV2->Draw("psame");
    
    TLegend *leg = new TLegend(0.18, 0.76, 0.5, 0.94);
    leg->SetFillColor(10);
@@ -183,12 +201,14 @@ void plotNPEv2()
    leg->SetLineWidth(0.);
    leg->SetTextFont(42);
    leg->SetTextSize(0.045);
-   leg->AddEntry(gSTAR200,"200 GeV","p");
-   leg->AddEntry(gSTAR62,"62.4 GeV","p");
-   leg->AddEntry(gSTAR54,"54.4 GeV","p");
+   /* leg->AddEntry(gSTAR200,"200 GeV","p"); */
+   /* leg->AddEntry(gSTAR62,"62.4 GeV","p"); */
+   leg->AddEntry(gSTAR54,"e^{HF} v_{2}","p");
+   leg->AddEntry(pKaonV2,"Ke3 v_{2}","p");
+   leg->AddEntry( gBefore, "NPE v_{2}","p");
    leg->Draw();
 
-   drawSTAR(0.65,0.88);
+   /* drawSTAR(0.65,0.88); */
 
    c1->Update();
    c1->SaveAs("fig/NPEv2_200_62_54.pdf");
@@ -196,8 +216,8 @@ void plotNPEv2()
    c1->SaveAs("fig/NPEv2_200_62_54.png");
 
    //draw theory curve
-   gRappNPE200->Draw("same");
-   gRappNPE62->Draw("sameF");
+   /* gRappNPE200->Draw("same"); */
+   /* gRappNPE62->Draw("sameF"); */
 
    TLegend *leg = new TLegend(0.65, 0.18, 0.9, 0.32);
    leg->SetFillColor(10);
@@ -209,7 +229,7 @@ void plotNPEv2()
    leg->SetTextSize(0.045);
    leg->AddEntry(gRappNPE200,"TAMU @200 GeV","l");
    leg->AddEntry(gRappNPE62,"TAMU @62.4 GeV","l");
-   leg->Draw();
+   /* leg->Draw(); */
 
    c1->Update();
    c1->SaveAs("fig/NPEv2_200_62_54_model.pdf");
@@ -220,6 +240,7 @@ void plotNPEv2()
    gpurity->SetName("gpurity");
    TGraphErrors* gpuritysys = new TGraphErrors(npoints,x, eratioerr, xwidth,0 );
    gpuritysys->SetName("gpuritysys");
+
 
    TFile* gplots = new TFile("final/finalDatapoints.root","recreate");
    g54S2B->Write();

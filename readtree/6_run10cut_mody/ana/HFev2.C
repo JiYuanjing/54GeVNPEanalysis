@@ -60,7 +60,7 @@ void getHFev2(TString pdfname="plots.pdf",TString purityfilename="Nsigma_2_8_pur
   TGraph* gTotSysErr = (TGraph*)fsysReco->Get("Graph")->Clone("gTotSysErr");
 
   TFile* freco = TFile::Open("embed/fitRecoEff.root");
-  // TF1* fitreco = (TF1*)freco->Get("fitfun2");
+  /* TF1* fitreco = (TF1*)freco->Get("fitfun2"); */
   TF1* fitreco = (TF1*)freco->Get(efftype.Data());
 
   TH1F* hPheEff = ProjectionAndFit("rescaleEmbed/rescale_combine.root", centL-1,centH-1 ,"RecoEff",pdf );

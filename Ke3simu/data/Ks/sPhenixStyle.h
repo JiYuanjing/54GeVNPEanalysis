@@ -47,7 +47,7 @@ TStyle* sPhenixStyle()
   sphenixStyle->SetPaperSize(20,26);
 
   // set margin sizes
-  sphenixStyle->SetPadTopMargin(0.05);
+  sphenixStyle->SetPadTopMargin(0.06);
   sphenixStyle->SetPadRightMargin(0.05);
   sphenixStyle->SetPadBottomMargin(0.16);
   sphenixStyle->SetPadLeftMargin(0.16);
@@ -79,7 +79,8 @@ TStyle* sPhenixStyle()
 
   // use bold lines and markers
   sphenixStyle->SetMarkerStyle(20);
-  sphenixStyle->SetMarkerSize(1.2);
+  // sphenixStyle->SetMarkerSize(1.2);
+  sphenixStyle->SetMarkerSize(1.0);
   sphenixStyle->SetHistLineWidth(2.);
   sphenixStyle->SetLineStyleString(2,"[12 12]"); // postscript dashes
 
@@ -166,10 +167,18 @@ TLine* drawLine(Double_t xlow,Double_t ylow, Double_t xup, Double_t yup, Double_
     l1->Draw("same");
     return l1;
 }
-void drawLatex(double x,double y,const char* txt,double size=0.035)
+void drawLatex(double x,double y,const char* txt,double size)
 {
   TLatex lat;
   lat.SetTextSize(size);
   lat.DrawLatexNDC ( x, y, txt);
+}
+void drawSTAR(double x,double y)
+{
+  TLatex lat;
+  lat.SetTextSize(0.05);
+  lat.SetTextFont(72);
+  lat.SetTextColor(kRed);
+  lat.DrawLatexNDC ( x, y, "STAR Preliminary");
 }
 #endif // __SPHENIXSTYLE_H

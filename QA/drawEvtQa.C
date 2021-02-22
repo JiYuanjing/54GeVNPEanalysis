@@ -53,10 +53,18 @@ void drawEvtQa(){
   drawLatex( 0.6, 0.85, "Au+Au 54.4 GeV" ,0.055);
   gPad->SaveAs("VxVy.png");
   gPad->SaveAs("VxVy.pdf");
+  hVxVy->SaveAs("VxVy54GeV.root");
   addpdf(pdf);
 
   hVz->Draw();
   addpdf(pdf);
+  TH1F* hVzCut = (TH1F*)hVz->Clone("hVzCut");
+  for (int i=1;i<hVzCut->GetNbinsX()+1;i++)
+  {
+    if (fabs(hVzCut->GetBinCenter(i))>35)
+       hVzCut->SetBinContent( i, 0);
+  }
+  hVzCut->SaveAs("Vz54GeV.root");
   hVzVpdVz->Draw();
   hgDca->Draw();
 

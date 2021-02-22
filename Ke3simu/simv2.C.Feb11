@@ -81,7 +81,6 @@ void decayAndFill(int const kf, TLorentzVector* mother,  TClonesArray& daughters
   int nTrk = daughters.GetEntriesFast();
   TVector3 v0_e;
   TVector3 v0_K(0,0,0);
-  smearPV(v0_K);
   /* if (nTrk>1) cout<< nTrk<<endl; */
   for (int iTrk=0;iTrk<nTrk;++iTrk)
   {
@@ -91,7 +90,7 @@ void decayAndFill(int const kf, TLorentzVector* mother,  TClonesArray& daughters
     {
       ptl0->Momentum(*gammaMom);
       if (gammaMom->Perp()<0.1) continue;
-      v0_e.SetXYZ(ptl0->Vx() * 0.1+v0_K.x(), ptl0->Vy() * 0.1+v0_K.y(), ptl0->Vz() * 0.1+v0_K.z()); //turn to cm
+      v0_e.SetXYZ(ptl0->Vx() * 0.1, ptl0->Vy() * 0.1, ptl0->Vz() * 0.1); //turn to cm
       TVector3 trans(gammaMom->Px(),gammaMom->Py(),gammaMom->Pz());
       TVector3 newv0_e;
       /* cout << ptl0->Vz()<< endl; */
@@ -110,17 +109,17 @@ void decayAndFill(int const kf, TLorentzVector* mother,  TClonesArray& daughters
        
         //rotate electon mom
         // double angle = decayL*HelixK.curvature();
-        TVector3 v1(v0_K.x()-HelixK.xcenter(), v0_K.y()-HelixK.ycenter(),0); // start position of Kaon, projection in XY plane
-        TVector3 v2(newv0_e.x()-HelixK.xcenter(), newv0_e.y()-HelixK.ycenter(),0);  // decay position of Kaon, projection in XY
+        TVector3 v1(-1*HelixK.xcenter(), -1*HelixK.ycenter(),0);
+        TVector3 v2(newv0_e.x()-HelixK.xcenter(), newv0_e.y()-HelixK.ycenter(),0);
         // double angle = v2.Angle(v1); 
+        // cout<<"2: "<<TMath::ATan2( v2.Unit().Cross(v1.Unit()).Mag() , v2.Unit().Dot(v1.Unit()) ) <<" "<<angle <<endl;
         double angle = TMath::ATan2( v2.Unit().Cross(v1.Unit()).Mag() , v2.Unit().Dot(v1.Unit()) );
-        // cout<<"test angle: "<<TMath::ATan2( v2.Unit().Cross(v1.Unit()).Mag() , v2.Unit().Dot(v1.Unit()) ) <<" "<<angle <<endl;
 
         if (mode==0) trans.RotateZ(2*3.14159265-angle); // rotation around v1
         if (mode==1) trans.RotateZ(angle); // rotation around v1
         //for test:
         // v1.RotateZ(2*3.14159265-angle);
-        // cout<< "check if rotation is correct "<< v2.x() <<" "<<v2.y()<<" "<<v1.x()<<" "<<v1.y()<<endl;
+        // cout<< angle <<" "<< v2.x() <<" "<<v2.y()<<" "<<v1.x()<<" "<<v1.y()<<endl;
 
         //calculate new phiweight
         TLorentzVector* newm4 = new TLorentzVector;
@@ -131,50 +130,14 @@ void decayAndFill(int const kf, TLorentzVector* mother,  TClonesArray& daughters
       }
       else if (mode == 2 || mode == 3) 
       {
-         newv0_e.SetXYZ(ptl0->Vx() * 0.1+v0_K.x(), ptl0->Vy() * 0.1+v0_K.y(), ptl0->Vz() * 0.1+v0_K.z());
+         newv0_e.SetXYZ(ptl0->Vx() * 0.1, ptl0->Vy() * 0.1, ptl0->Vz() * 0.1);
       }
       StPhysicalHelixD HelixE( trans,  newv0_e, 0.5*kilogauss, ptl0->GetPdgCode()>0? -1: 1); 
       double dcaPath = HelixE.pathLength(v0_K);
       TVector3 DCApos = HelixE.at( dcaPath);
-      newgamma->SetVectM(HelixE.momentumAt(dcaPath,0.5*kilogauss), 0.000511); //mom at DCA position 
-      //
-      bool passnHits = 1; 
-      int nHits = 0;
-      pairD cross = HelixE.pathLength(190);
-      if (cross.first>1e9 && cross.second>1e9) passnHits=0;
-      TVector3 crossPos = HelixE.at(cross.first>0?cross.first : cross.second);
-      cout <<crossPos.Perp() << " "<<crossPos.z() <<endl;
+      newgamma->SetVectM(HelixE.momentumAt(dcaPath,0.5*kilogauss), 0.000511); //mom at DCA position
 
-      /* TVector3 n(0,0,1),r(0,0,200); */
-      /* double outPath = HelixE.pathLength(r,n); */
-      /* TVector3 outPos = HelixE.at(outPath); */
-      /* if (outPos.Perp()<189.2)  */
-      /* {  */
-      /*   if (outPos.Perp()<60) nHits = 0; */
-      /*   if (outPos.Perp()>=60 && outPos.Perp()<126.4){  */
-      /*     #<{(| nHits = floor((120-newv0_e.Perp())/5) - floor((120-outPos.Perp())/5); |)}># */
-      /*     nHits = 0; // the maximum they can have is less than 19 */
-      /*   } */
-      /*   if (outPos.Perp()>=126.4) */
-      /*   { */
-      /*     if (newv0_e.Perp()<149.2) nHits = 0 ; // the maximum achieve is less than 19   */
-      /*     else if (newv0_e.Perp()>127.2) nHits = floor((189.2-outPos.Perp())/2) - floor((189.2-newv0_e.Perp())/2); */
-      /*     else if (newv0_e.Perp()<127.2 && newv0_e.Perp()>120) nHits =  32 - floor((189.2-newv0_e.Perp())/2); //just a rough est. */
-      /*     else if (newv0_e.Perp()<120) nHits =  floor((120-newv0_e.Perp())/5)+1+32 - floor((189.2-newv0_e.Perp())/2); //just a rough est. */
-      /*   } */
-      /* } */
-      /* else */
-      /* { */
-      /*   if (newv0_e.Perp()<60) nHits = 45; */
-      /*   else if (newv0_e.Perp()>=60 && newv0_e.Perp()<120) nHits = floor((120-newv0_e.Perp())/5)+1+32; // roughly take 5cm as a gap   */
-      /*   else if (newv0_e.Perp()>=120 && newv0_e.Perp()<120+7.2) nHits = 32; */
-      /*   else if (newv0_e.Perp()>=120+7.2 && newv0_e.Perp()<189.2) nHits = floor((189.2-newv0_e.Perp())/2)+1; */
-      /*   else nHits=0; */
-      /* }  */
-
-      if (nHits>=20) passnHits = 1;
-      // 
-      fillGamma(newgamma, DCApos, newv0_e, passnHits, ptweight, phiweight, EP, cent);
+      fillGamma(newgamma, DCApos, newv0_e,  ptweight, phiweight, EP, cent);
     }
     else continue;
   }
@@ -184,7 +147,7 @@ void decayAndFill(int const kf, TLorentzVector* mother,  TClonesArray& daughters
   delete gammaMom;
 }
 
-void fillGamma(TLorentzVector* gamma, TVector3 DCApos, TVector3 newv0_e, bool passnHits, double ptweight,double phiweight,float EP,int cent)
+void fillGamma(TLorentzVector* gamma, TVector3 DCApos, TVector3 newv0_e,  double ptweight,double phiweight,float EP,int cent)
 {
   if (!gamma || gamma->Perp()<0.15) return;
 
@@ -193,8 +156,7 @@ void fillGamma(TLorentzVector* gamma, TVector3 DCApos, TVector3 newv0_e, bool pa
   TVector3 rPos_e = smearPos( gamma, DCApos);
   pElectronV2NoCut->Fill((Double_t)gpt,(Double_t)gamma->Eta(),(Double_t)cent,(Double_t)cos(2*(gphi-EP)) ,(Double_t)(ptweight*phiweight));
   hElectronSpecNoCut->Fill((Double_t)gpt,(Double_t)gamma->Rapidity(),(Double_t)cent,(Double_t)ptweight);
-  if (fabs(newv0_e.Perp())<190 && fabs(newv0_e.z())<200)
-    hElectronSpecDLCut->Fill((Double_t)gpt,(Double_t)gamma->Rapidity(),(Double_t)cent,(Double_t)ptweight);
+  if (fabs(newv0_e.Perp())<200 && fabs(newv0_e.z())<200) hElectronSpecDLCut->Fill((Double_t)gpt,(Double_t)gamma->Rapidity(),(Double_t)cent,(Double_t)ptweight);
   if (fabs(rPos_e.Mag())<1.5 && fabs(newv0_e.Perp())<70 && fabs(newv0_e.z()) <200){
     pElectronV2DcaCut->Fill(gpt,gamma->Eta(),cent,cos(2*(gphi-EP)) ,ptweight*phiweight);
     // hGammav2[cent]->Fill(getDeltaPhi(gphi,EP),gpt,gamma->Eta(),ptweight*phiweight);
@@ -213,10 +175,6 @@ TVector3 smearPos(TLorentzVector const* rMom, TVector3 const& pos)
   newPos -= momPerp.Unit() * sigmaPosXY;
 
   return TVector3(newPos.X(), newPos.Y(), pos.Z() + sigmaPosZ);
-}
-void smearPV(TVector3& PV)
-{
-  PV.SetZ(hVz->GetRandom());
 }
 void setDecayChannels(int mode)
 {
@@ -345,10 +303,6 @@ void bookHists(int mode)
   /*   fPi0v2[ic]->SetParameter(2,1); */
   /* } */
 
-  file->Close();
-  file = TFile::Open("data/Vz54GeV.root");
-  hVz = (TH1F*)file->Get("hVzCut");
-  hVz->SetDirectory(0);
   file->Close();
 
 }
